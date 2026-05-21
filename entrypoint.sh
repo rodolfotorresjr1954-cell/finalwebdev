@@ -15,6 +15,14 @@ echo "Starting PHP-FPM..."
 php-fpm -F 2>&1 &
 PHP_PID=$!
 
+# When this script exits for any reason, kill PHP-FPM so the container fully stops
+cleanup() {
+    echo "Shutting down PHP-FPM (pid $PHP_PID)..."
+    kill "$PHP_PID" 2>/dev/null || true
+    wait "$PHP_PID" 2>/dev/null || true
+}
+trap cleanup EXIT
+
 # Wait for PHP-FPM to bind to port 9000 (up to 10 s) instead of a blind sleep
 echo "Waiting for PHP-FPM to become ready..."
 for i in $(seq 1 10); do
@@ -24,8 +32,7 @@ for i in $(seq 1 10); do
     fi
     # Check whether the process already died while we were waiting
     if ! kill -0 "$PHP_PID" 2>/dev/null; then
-        wait "$PHP_PID"
-        echo "ERROR: PHP-FPM exited unexpectedly during startup (exit code $?)"
+        echo "ERROR: PHP-FPM exited unexpectedly during startup"
         exit 1
     fi
     echo "PHP-FPM not ready yet, waiting... ($i/10)"
@@ -35,24 +42,30 @@ done
 # Final check — if we exhausted the loop without a successful connect, abort
 if ! timeout 1 bash -c 'echo > /dev/tcp/127.0.0.1/9000' 2>/dev/null; then
     echo "ERROR: PHP-FPM did not start within 10 seconds"
-    if ! kill -0 "$PHP_PID" 2>/dev/null; then
-        wait "$PHP_PID"
-        echo "ERROR: PHP-FPM exit code: $?"
-    fi
     exit 1
 fi
 
-# Monitor PHP-FPM in the background and log if it crashes after startup
-(
-    wait "$PHP_PID"
-    EXIT_CODE=$?
-    if [ $EXIT_CODE -ne 0 ]; then
-        echo "ERROR: PHP-FPM crashed with exit code $EXIT_CODE"
-    fi
-) &
+# Watchdog: poll PHP-FPM liveness every 5 s; if it dies, stop Nginx so the
+# container exits and Railway restarts it. This runs entirely via kill signals
+# and never calls wait(), so it cannot trigger "not a child of this shell".
+watchdog() {
+    while true; do
+        sleep 5
+        if ! kill -0 "$PHP_PID" 2>/dev/null; then
+            echo "ERROR: PHP-FPM (pid $PHP_PID) is no longer running — stopping Nginx"
+            nginx -s quit 2>/dev/null || true
+            return
+        fi
+    done
+}
+watchdog &
+WATCHDOG_PID=$!
 
 echo "Starting Nginx..."
+# nginx -g "daemon off;" is the foreground process; the script blocks here.
+# When Nginx exits (gracefully or otherwise), execution continues below.
 nginx -g "daemon off;"
 
-# If Nginx exits, bring down the whole container so Railway restarts it
-wait $PHP_PID
+# Nginx has exited — stop the watchdog and let the EXIT trap clean up PHP-FPM
+kill "$WATCHDOG_PID" 2>/dev/null || true
+echo "Nginx has exited — container will stop"
