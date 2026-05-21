@@ -1,0 +1,59 @@
+services:
+    mysql:
+        image: mysql:8.0
+        platform: linux/amd64
+        restart: unless-stopped
+        environment:
+         MYSQL_ROOT_PASSWORD: burger_root_password
+         MYSQL_DATABASE: burger_db
+         MYSQL_USER: burger_user
+         MYSQL_PASSWORD: burger_password
+        ports:
+        - "3309:3306"
+        volumes:
+        - mysql_data:/var/lib/mysql
+        networks:
+        - burger_network
+
+    app:
+     build:
+      context: .
+      dockerfile: Dockerfile
+        container_name: burger_app
+    restart: unless-stopped
+    volumes:
+      - .:/var/www/html
+      - app_var:/var/www/html/var
+    networks:
+    - burger_network
+    depends_on:
+      - mysql
+    environment:
+      APP_ENV: prod
+      APP_SECRET: ${APP_SECRET}
+      DATABASE_URL: "mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@mysql:3306/${MYSQL_DATABASE}?serverVersion=8.0&charset=utf8mb4"
+    ports:
+      - "8000:8080"
+
+    
+    phpmyadmin:
+       image: phpmyadmin/phpmyadmin
+       platform: linux/amd64
+       restart: unless-stopped
+       environment:
+        PMA_HOST: mysql
+        PMA_USER: burger_user
+        PMA_PASSWORD: burger_password
+       ports:
+        - "8080:80"
+       depends_on:
+        - mysql
+       networks:
+        - burger_network
+
+volumes:
+    mysql_data:
+
+networks:
+    burger_network:
+    

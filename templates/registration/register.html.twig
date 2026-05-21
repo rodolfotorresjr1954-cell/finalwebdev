@@ -1,0 +1,608 @@
+{% extends 'layout/adventure_landing.html.twig' %}
+
+{% block title %}Create account — Grilled & Bites Burger
+{% endblock %}
+
+{% block stylesheets %}
+{{ parent() }}
+<style>
+  .gb-reg-page {
+    --gb-reg-gold: #f5c518;
+    --gb-reg-gold-deep: #c9a227;
+    --gb-reg-red: #c41e3a;
+    --gb-reg-glass: rgba(255, 255, 255, 0.09);
+    --gb-reg-glass-border: rgba(255, 255, 255, 0.14);
+    min-height: 100vh;
+    display: grid;
+    grid-template-columns: 1fr;
+    position: relative;
+    overflow: hidden;
+    font-family: 'Montserrat', system-ui, sans-serif;
+    color: rgba(255, 255, 255, 0.92);
+  }
+
+  @media (min-width: 960px) {
+    .gb-reg-page {
+      grid-template-columns: 0.95fr 1.05fr;
+    }
+  }
+
+  .gb-reg-page__bg {
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background:
+      radial-gradient(ellipse 100% 70% at 80% 15%, rgba(196, 30, 58, 0.16), transparent 50%),
+      radial-gradient(ellipse 90% 80% at 10% 80%, rgba(245, 197, 24, 0.16), transparent 55%),
+      linear-gradient(195deg, #0e0c0b 0%, #161210 40%, #0a0908 100%);
+  }
+
+  .gb-reg-page__burger {
+    position: absolute;
+    left: -10%;
+    bottom: -14%;
+    width: min(78vw, 620px);
+    opacity: 0.2;
+    filter: blur(2px);
+    transform: rotate(6deg);
+    pointer-events: none;
+    user-select: none;
+  }
+
+  @media (min-width: 960px) {
+    .gb-reg-page__burger {
+      display: none;
+    }
+  }
+
+  .gb-reg-brand {
+    position: absolute;
+    top: clamp(1rem, 3vw, 1.75rem);
+    left: 50%;
+    transform: translateX(-50%);
+    z-index: 3;
+    font-family: 'Yellowtail', cursive;
+    font-size: clamp(1.35rem, 3.5vw, 1.75rem);
+    color: var(--gb-reg-gold);
+    text-decoration: none;
+    text-shadow: 0 0 32px rgba(245, 197, 24, 0.35);
+    transition: color 0.2s ease, transform 0.2s ease;
+  }
+
+  .gb-reg-brand:hover {
+    color: #ffd54a;
+    transform: translateX(-50%) scale(1.02);
+  }
+
+  @media (min-width: 960px) {
+    .gb-reg-brand {
+      left: clamp(1.5rem, 4vw, 2.5rem);
+      transform: none;
+    }
+    .gb-reg-brand:hover {
+      transform: scale(1.02);
+    }
+  }
+
+  .gb-reg-aside {
+    position: relative;
+    z-index: 2;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    order: 1;
+    padding: clamp(4.25rem, 14vw, 5.5rem) clamp(1.5rem, 4vw, 3rem) clamp(1.5rem, 4vw, 3rem);
+  }
+
+  @media (min-width: 960px) {
+    .gb-reg-aside {
+      padding: clamp(1.5rem, 4vw, 3rem);
+      order: 1;
+    }
+  }
+
+  .gb-reg-hero {
+    position: relative;
+    z-index: 1;
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    order: 2;
+    padding: clamp(2rem, 5vw, 4rem);
+    overflow: hidden;
+  }
+
+  @media (min-width: 960px) {
+    .gb-reg-hero {
+      display: flex;
+    }
+  }
+
+  .gb-reg-hero__glow {
+    position: absolute;
+    width: 140%;
+    height: 140%;
+    right: -25%;
+    top: -15%;
+    background: radial-gradient(circle at 55% 45%, rgba(196, 30, 58, 0.12), transparent 55%);
+    pointer-events: none;
+  }
+
+  .gb-reg-hero__frame {
+    position: relative;
+    max-width: 400px;
+    margin: 0 auto;
+    padding: clamp(1rem, 3vw, 1.85rem);
+    border-radius: 50%;
+    background: linear-gradient(145deg, rgba(255, 255, 255, 0.11), rgba(255, 255, 255, 0.03));
+    box-shadow:
+      0 0 0 1px rgba(255, 255, 255, 0.1) inset,
+      0 32px 64px rgba(0, 0, 0, 0.35);
+  }
+
+  .gb-reg-hero__frame::before {
+    content: '';
+    position: absolute;
+    inset: -4px;
+    border-radius: 50%;
+    background: linear-gradient(225deg, rgba(196, 30, 58, 0.35), rgba(245, 197, 24, 0.45), transparent 62%);
+    z-index: -1;
+    opacity: 0.88;
+  }
+
+  .gb-reg-hero__img {
+    width: 100%;
+    height: auto;
+    display: block;
+    filter: drop-shadow(0 20px 40px rgba(0, 0, 0, 0.45));
+  }
+
+  .gb-reg-hero__tagline {
+    margin-top: 1.75rem;
+    text-align: center;
+    font-family: 'Cinzel', serif;
+    font-weight: 700;
+    font-size: clamp(1.1rem, 2vw, 1.35rem);
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.88);
+    line-height: 1.55;
+  }
+
+  .gb-reg-hero__tagline span {
+    display: block;
+    color: var(--gb-reg-gold);
+    font-size: 0.72em;
+    letter-spacing: 0.18em;
+    margin-top: 0.35rem;
+  }
+
+  .gb-reg-card {
+    width: 100%;
+    max-width: 440px;
+    padding: clamp(1.65rem, 4vw, 2.25rem);
+    border-radius: 24px;
+    background: var(--gb-reg-glass);
+    backdrop-filter: blur(22px);
+    -webkit-backdrop-filter: blur(22px);
+    border: 1px solid var(--gb-reg-glass-border);
+    box-shadow:
+      0 24px 48px rgba(0, 0, 0, 0.35),
+      0 0 0 1px rgba(0, 0, 0, 0.2) inset;
+  }
+
+  .gb-reg-card__eyebrow {
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: var(--gb-reg-gold);
+    margin: 0 0 0.45rem;
+  }
+
+  .gb-reg-card h1 {
+    margin: 0 0 0.35rem;
+    font-family: 'Cinzel', serif;
+    font-weight: 700;
+    font-size: clamp(1.5rem, 3.8vw, 1.85rem);
+    letter-spacing: 0.04em;
+    color: #fff;
+    line-height: 1.2;
+  }
+
+  .gb-reg-card__subtitle {
+    margin: 0 0 1.35rem;
+    font-size: 0.92rem;
+    font-weight: 500;
+    color: rgba(255, 255, 255, 0.55);
+    line-height: 1.55;
+  }
+
+  .gb-reg-form .gb-reg-field {
+    margin-bottom: 1rem;
+  }
+
+  .gb-reg-form .gb-reg-field:last-of-type {
+    margin-bottom: 0;
+  }
+
+  .gb-reg-label {
+    display: block;
+    margin-bottom: 0.4rem;
+    font-weight: 600;
+    font-size: 0.72rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.52);
+  }
+
+  .gb-reg-label.required::after {
+    content: ' *';
+    color: rgba(245, 197, 24, 0.85);
+  }
+
+  .gb-reg-control {
+    width: 100%;
+    height: 48px;
+    padding: 0 1rem;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 12px;
+    font-size: 0.95rem;
+    font-family: inherit;
+    color: #fff;
+    background: rgba(0, 0, 0, 0.28);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease, background 0.2s ease;
+    box-sizing: border-box;
+  }
+
+  .gb-reg-control::placeholder {
+    color: rgba(255, 255, 255, 0.28);
+  }
+
+  .gb-reg-control:focus {
+    outline: none;
+    border-color: rgba(245, 197, 24, 0.55);
+    background: rgba(0, 0, 0, 0.38);
+    box-shadow: 0 0 0 3px rgba(245, 197, 24, 0.12);
+  }
+
+  .gb-reg-input-wrap {
+    position: relative;
+  }
+
+  .gb-reg-input-icon {
+    position: absolute;
+    left: 0.95rem;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 18px;
+    height: 18px;
+    color: rgba(245, 197, 24, 0.9);
+    opacity: 0.9;
+    pointer-events: none;
+  }
+
+  .gb-reg-control--icon {
+    padding-left: 2.65rem;
+  }
+
+  .gb-reg-form ul {
+    list-style: none;
+    margin: 0.4rem 0 0;
+    padding: 0;
+  }
+
+  .gb-reg-form ul li {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: #fecaca;
+    padding: 0.35rem 0.65rem;
+    border-radius: 8px;
+    background: rgba(127, 29, 29, 0.35);
+    border: 1px solid rgba(248, 113, 113, 0.35);
+  }
+
+  .gb-reg-form > ul > li {
+    margin-bottom: 0.35rem;
+  }
+
+  .gb-reg-global-errors {
+    margin-bottom: 1rem;
+  }
+
+  .gb-reg-global-errors:not(:has(li)) {
+    display: none;
+    margin-bottom: 0;
+  }
+
+  .gb-reg-global-errors ul li {
+    background: rgba(127, 29, 29, 0.4);
+  }
+
+  .gb-reg-field--terms {
+    margin-top: 1.15rem;
+    margin-bottom: 0.25rem;
+  }
+
+  .gb-reg-checkbox-row {
+    position: relative;
+    display: flex;
+    align-items: flex-start;
+    gap: 0.65rem;
+  }
+
+  .gb-reg-checkbox-row input[type="checkbox"] {
+    position: absolute;
+    left: 0;
+    top: 0.1rem;
+    width: 1.35rem;
+    height: 1.35rem;
+    margin: 0;
+    opacity: 0.01;
+    cursor: pointer;
+    z-index: 2;
+  }
+
+  .gb-reg-checkbox-label {
+    position: relative;
+    display: block;
+    cursor: pointer;
+    font-size: 0.88rem;
+    font-weight: 500;
+    line-height: 1.45;
+    color: rgba(255, 255, 255, 0.72);
+    padding-left: 2rem;
+    min-height: 1.35rem;
+  }
+
+  .gb-reg-checkbox-label::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 0.12rem;
+    width: 1.15rem;
+    height: 1.15rem;
+    border-radius: 6px;
+    border: 2px solid rgba(255, 255, 255, 0.28);
+    background: rgba(0, 0, 0, 0.25);
+    transition: border-color 0.2s ease, background 0.2s ease, box-shadow 0.2s ease;
+  }
+
+  .gb-reg-checkbox-row input[type="checkbox"]:checked + .gb-reg-checkbox-label::before {
+    background: linear-gradient(135deg, #ffd54a, var(--gb-reg-gold));
+    border-color: rgba(245, 197, 24, 0.85);
+    box-shadow: 0 0 0 2px rgba(245, 197, 24, 0.2);
+  }
+
+  .gb-reg-checkbox-row input[type="checkbox"]:checked + .gb-reg-checkbox-label::after {
+    content: '';
+    position: absolute;
+    left: 0.28rem;
+    top: 0.38rem;
+    width: 0.45rem;
+    height: 0.22rem;
+    border: 2px solid #1a1208;
+    border-top: none;
+    border-right: none;
+    transform: rotate(-45deg);
+  }
+
+  .gb-reg-checkbox-row input[type="checkbox"]:focus-visible + .gb-reg-checkbox-label::before {
+    box-shadow: 0 0 0 3px rgba(245, 197, 24, 0.25);
+  }
+
+  .gb-reg-link {
+    color: var(--gb-reg-gold);
+    font-weight: 600;
+    text-decoration: none;
+    border-bottom: 1px solid rgba(245, 197, 24, 0.35);
+    transition: color 0.2s ease, border-color 0.2s ease;
+  }
+
+  .gb-reg-link:hover {
+    color: #ffd54a;
+    border-bottom-color: rgba(255, 213, 74, 0.55);
+  }
+
+  .gb-reg-submit {
+    width: 100%;
+    margin-top: 1.35rem;
+    height: 50px;
+    border: none;
+    border-radius: 14px;
+    font-family: inherit;
+    font-weight: 700;
+    font-size: 0.95rem;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    cursor: pointer;
+    color: #1a1208;
+    background: linear-gradient(135deg, #ffd54a, var(--gb-reg-gold) 40%, var(--gb-reg-gold-deep));
+    box-shadow:
+      0 4px 16px rgba(245, 197, 24, 0.35),
+      0 0 0 1px rgba(255, 255, 255, 0.15) inset;
+    transition: transform 0.2s ease, box-shadow 0.2s ease, filter 0.2s ease;
+  }
+
+  .gb-reg-submit:hover {
+    filter: brightness(1.05);
+    box-shadow:
+      0 8px 28px rgba(245, 197, 24, 0.4),
+      0 0 0 1px rgba(255, 255, 255, 0.2) inset;
+    transform: translateY(-2px);
+  }
+
+  .gb-reg-submit:active {
+    transform: translateY(0);
+  }
+
+  .gb-reg-submit:focus-visible {
+    outline: 2px solid var(--gb-reg-gold);
+    outline-offset: 3px;
+  }
+
+  .gb-reg-divider {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin: 1.35rem 0 0.85rem;
+    font-size: 0.72rem;
+    font-weight: 600;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.35);
+  }
+
+  .gb-reg-divider::before,
+  .gb-reg-divider::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.15), transparent);
+  }
+
+  .gb-reg-signin {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 0.85rem 1rem;
+    text-align: center;
+    text-decoration: none;
+    border-radius: 14px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    letter-spacing: 0.04em;
+    color: rgba(255, 255, 255, 0.88);
+    border: 1px solid rgba(255, 255, 255, 0.22);
+    background: rgba(255, 255, 255, 0.04);
+    transition: background 0.2s ease, border-color 0.2s ease, transform 0.2s ease;
+  }
+
+  .gb-reg-signin:hover {
+    background: rgba(255, 255, 255, 0.1);
+    border-color: rgba(245, 197, 24, 0.45);
+    transform: translateY(-1px);
+  }
+
+  .gb-reg-signin:focus-visible {
+    outline: 2px solid var(--gb-reg-gold);
+    outline-offset: 2px;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .gb-reg-submit:hover,
+    .gb-reg-signin:hover,
+    .gb-reg-brand:hover {
+      transform: none;
+    }
+  }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="gb-reg-page">
+  <div class="gb-reg-page__bg" aria-hidden="true"></div>
+  <img
+    class="gb-reg-page__burger"
+    src="{{ asset('uploads/images/contact-burger-classic.png') }}"
+    alt=""
+    width="620"
+    height="620"
+    loading="lazy"
+    decoding="async"
+  >
+
+  <a href="{{ path('app_home') }}" class="gb-reg-brand">Grilled &amp; Bites Burger</a>
+
+  <div class="gb-reg-aside">
+    <div class="gb-reg-card">
+      <p class="gb-reg-card__eyebrow">New member</p>
+      <h1>Create your account</h1>
+      <p class="gb-reg-card__subtitle">Save favorites, checkout faster, and track every order in one place.</p>
+
+      {{ form_start(registrationForm, { attr: { class: 'gb-reg-form', novalidate: 'novalidate' } }) }}
+
+      <div class="gb-reg-global-errors" role="alert">
+        {{ form_errors(registrationForm) }}
+      </div>
+
+      <div class="gb-reg-field">
+        {{ form_label(registrationForm.username, 'Username', { label_attr: { class: 'gb-reg-label required' } }) }}
+        {{ form_widget(registrationForm.username, { attr: {
+          class: 'gb-reg-control',
+          placeholder: 'Choose a display name',
+          autocomplete: 'username'
+        }}) }}
+        {{ form_errors(registrationForm.username) }}
+      </div>
+
+      <div class="gb-reg-field">
+        {{ form_label(registrationForm.email, 'Email', { label_attr: { class: 'gb-reg-label required' } }) }}
+        <div class="gb-reg-input-wrap">
+          <svg class="gb-reg-input-icon" xmlns="http://www.w3.org/2000/svg" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+            <path d="M4 7.5A2.5 2.5 0 0 1 6.5 5h11A2.5 2.5 0 0 1 20 7.5v9A2.5 2.5 0 0 1 17.5 19h-11A2.5 2.5 0 0 1 4 16.5v-9Z" stroke="currentColor" stroke-width="1.75" />
+            <path d="m6 8 6 4 6-4" stroke="currentColor" stroke-width="1.75" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+          {{ form_widget(registrationForm.email, { attr: {
+            class: 'gb-reg-control gb-reg-control--icon',
+            placeholder: 'Enter your email',
+            autocomplete: 'email',
+            inputmode: 'email'
+          }}) }}
+        </div>
+        {{ form_errors(registrationForm.email) }}
+      </div>
+
+
+      <div class="gb-reg-field">
+        {{ form_label(registrationForm.plainPassword, 'Password', { label_attr: { class: 'gb-reg-label required' } }) }}
+        {{ form_widget(registrationForm.plainPassword, { attr: {
+          class: 'gb-reg-control',
+          placeholder: 'At least 6 characters',
+          autocomplete: 'new-password'
+        }}) }}
+        {{ form_errors(registrationForm.plainPassword) }}
+      </div>
+
+      <div class="gb-reg-field gb-reg-field--terms">
+        <div class="gb-reg-checkbox-row">
+          {{ form_widget(registrationForm.agreeTerms, { attr: { class: '' } }) }}
+          <label class="gb-reg-checkbox-label" for="{{ registrationForm.agreeTerms.vars.id }}">
+            I agree to the
+            <a href="{{ path('app_home') }}#contact" class="gb-reg-link">terms &amp; conditions</a>
+          </label>
+        </div>
+        {{ form_errors(registrationForm.agreeTerms) }}
+      </div>
+
+      <button type="submit" class="gb-reg-submit">Create account</button>
+
+      {{ form_end(registrationForm) }}
+
+      <div class="gb-reg-divider">Already registered?</div>
+      <a href="{{ path('app_login') }}" class="gb-reg-signin">Sign in instead</a>
+    </div>
+  </div>
+
+  <div class="gb-reg-hero" aria-hidden="true">
+    <div class="gb-reg-hero__glow"></div>
+    <div>
+      <div class="gb-reg-hero__frame">
+        <img
+          class="gb-reg-hero__img"
+          src="{{ asset('uploads/images/contact-burger-classic.png') }}"
+          alt=""
+          width="360"
+          height="360"
+          loading="lazy"
+        >
+      </div>
+      <p class="gb-reg-hero__tagline">
+        Join the table
+        <span>Your next bite awaits</span>
+      </p>
+    </div>
+  </div>
+</div>
+{% endblock %}

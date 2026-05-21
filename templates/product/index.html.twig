@@ -1,0 +1,81 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Products{% endblock %}
+
+{% block body %}
+<main class="pp-page">
+  <div class="pp-page__inner">
+    <header class="pp-toolbar pp-toolbar--actions-only">
+      <h1 class="pp-sr-only">Products</h1>
+      <div class="pp-toolbar__actions">
+        <a href="{{ path('app_product_new') }}" class="pp-create-btn">
+          <span aria-hidden="true">+</span> New product
+        </a>
+      </div>
+    </header>
+
+    <div class="pp-filters">
+      <form method="get" class="pp-filters__form" aria-label="Filter products">
+        <div class="pp-field">
+          <label for="pp-filter-category">Category</label>
+          <select id="pp-filter-category" name="category" class="pp-select">
+            <option value="" {{ categoryId == 0 ? 'selected' : '' }}>All categories</option>
+            {% for category in categories %}
+              <option value="{{ category.id }}" {{ categoryId == category.id ? 'selected' : '' }}>{{ category.name }}</option>
+            {% endfor %}
+          </select>
+        </div>
+        <div class="pp-filter-actions">
+          <button type="submit" class="pp-btn-filter">Apply filters</button>
+          <a href="{{ path('app_product_index') }}" class="pp-btn-clear">Reset</a>
+        </div>
+      </form>
+    </div>
+
+    <div class="pp-scroll">
+      {% if products|length > 0 %}
+        <div class="pp-grid">
+          {% for product in products %}
+            <article class="pp-card">
+              <div class="pp-card__media">
+                {% if product.image %}
+                  <img src="{{ asset('uploads/images/' ~ product.image) }}" alt="{{ product.name|e('html_attr') }}" loading="lazy">
+                {% else %}
+                  <div class="pp-card__placeholder" role="img" aria-label="No image">No image</div>
+                {% endif %}
+              </div>
+              <div class="pp-card__body">
+                <h2 class="pp-card__title">{{ product.name }}</h2>
+                {% if product.category %}
+                  <span class="pp-card__badge">{{ product.category.name }}</span>
+                {% else %}
+                  <span class="pp-card__badge pp-card__badge--muted">Uncategorized</span>
+                {% endif %}
+                <p class="pp-card__desc">
+                  {% if product.description %}
+                    {{ product.description }}
+                  {% else %}
+                    <span class="pp-desc-muted">No description yet.</span>
+                  {% endif %}
+                </p>
+                <p class="pp-card__price">₱{{ product.price }}</p>
+                <div class="pp-card__actions">
+                  <a href="{{ path('app_product_show', {id: product.id}) }}" class="pp-btn-view">View</a>
+                  {% if is_granted('ROLE_ADMIN') or (app.user and product.createdBy and product.createdBy.id == app.user.id) %}
+                    <a href="{{ path('app_product_edit', {id: product.id}) }}" class="pp-btn-edit">Edit</a>
+                  {% endif %}
+                </div>
+              </div>
+            </article>
+          {% endfor %}
+        </div>
+      {% else %}
+        <div class="pp-empty">
+          <strong>No products yet</strong>
+          Create your first product to see it here.
+        </div>
+      {% endif %}
+    </div>
+  </div>
+</main>
+{% endblock %}

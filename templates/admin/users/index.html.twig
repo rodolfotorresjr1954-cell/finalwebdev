@@ -1,0 +1,110 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}User Management{% endblock %}
+
+{% block body %}
+<main class="um-page">
+  <div class="um-page__inner">
+    <header class="um-toolbar">
+      <h1 class="pp-sr-only">User management</h1>
+      <a href="{{ path('admin_user_new') }}" class="pp-create-btn pp-create-btn--violet">
+        <span aria-hidden="true">+</span> Create user
+      </a>
+    </header>
+
+    <div class="um-filters">
+      <form method="get" class="um-filters__form" aria-label="Search and filter users">
+        <div class="pp-field um-search-field">
+          <label for="um-search">Search</label>
+          <input type="search" id="um-search" name="search" value="{{ search }}" class="um-search" placeholder="Username or email…" autocomplete="off">
+        </div>
+        <div class="pp-field">
+          <label for="um-role">Role</label>
+          <select id="um-role" name="role" class="pp-select">
+            <option value="" {{ roleFilter is empty ? 'selected' : '' }}>All roles</option>
+            <option value="ROLE_ADMIN" {{ roleFilter == 'ROLE_ADMIN' ? 'selected' : '' }}>Admin</option>
+            <option value="ROLE_STAFF" {{ roleFilter == 'ROLE_STAFF' ? 'selected' : '' }}>Staff</option>
+            <option value="ROLE_USER" {{ roleFilter == 'ROLE_USER' ? 'selected' : '' }}>User</option>
+          </select>
+        </div>
+        <div class="pp-field">
+          <label for="um-status">Status</label>
+          <select id="um-status" name="status" class="pp-select">
+            <option value="" {{ statusFilter is empty ? 'selected' : '' }}>All statuses</option>
+            <option value="active" {{ statusFilter == 'active' ? 'selected' : '' }}>Active</option>
+            <option value="inactive" {{ statusFilter == 'inactive' ? 'selected' : '' }}>Inactive</option>
+          </select>
+        </div>
+        <div class="um-filter-actions">
+          <button type="submit" class="pp-btn-filter">Apply</button>
+          <a href="{{ path('admin_user_index') }}" class="pp-btn-clear">Reset</a>
+        </div>
+      </form>
+    </div>
+
+    <section class="um-table-panel" aria-labelledby="um-table-heading">
+      <div class="um-table-panel__head">
+        <h2 id="um-table-heading">Directory</h2>
+      </div>
+      <div class="um-table-scroll">
+        <table class="um-table">
+          <thead>
+            <tr>
+              <th scope="col">Username</th>
+              <th scope="col">Email</th>
+              <th scope="col">Role</th>
+              <th scope="col">Status</th>
+              <th scope="col">Created</th>
+              <th scope="col">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for user in users %}
+              <tr>
+                <td class="um-user-cell">
+                  <strong>{{ user.username }}</strong>
+                </td>
+                <td class="um-email" title="{{ user.email|e('html_attr') }}">{{ user.email }}</td>
+                <td>
+                  {% if 'ROLE_ADMIN' in user.roles %}
+                    <span class="um-badge um-badge--admin">Admin</span>
+                  {% elseif 'ROLE_STAFF' in user.roles %}
+                    <span class="um-badge um-badge--staff">Staff</span>
+                  {% else %}
+                    <span class="um-badge um-badge--user">User</span>
+                  {% endif %}
+                </td>
+                <td>
+                  {% if user.isActive %}
+                    <span class="um-badge um-badge--active">Active</span>
+                  {% else %}
+                    <span class="um-badge um-badge--inactive">Inactive</span>
+                  {% endif %}
+                </td>
+                <td class="um-date">{{ user.createdAt ? user.createdAt|date('M j, Y g:i A') : '—' }}</td>
+                <td>
+                  <div class="um-actions">
+                    <a href="{{ path('admin_user_show', {id: user.id}) }}" class="um-act um-act--view">View</a>
+                    <form method="post" action="{{ path('admin_user_toggle_status', {id: user.id}) }}" class="um-act-form">
+                      <input type="hidden" name="_token" value="{{ csrf_token('toggle_status' ~ user.id) }}">
+                      <button type="submit" class="um-act um-act--warn">{{ user.isActive ? 'Deactivate' : 'Activate' }}</button>
+                    </form>
+                    <form method="post" action="{{ path('admin_user_delete', {id: user.id}) }}" class="um-act-form" onsubmit="return confirm('Delete this user permanently?');">
+                      <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ user.id) }}">
+                      <button type="submit" class="um-act um-act--danger">Delete</button>
+                    </form>
+                  </div>
+                </td>
+              </tr>
+            {% else %}
+              <tr class="um-empty">
+                <td colspan="6">No users match your filters.</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </section>
+  </div>
+</main>
+{% endblock %}

@@ -1,0 +1,6 @@
+{% extends 'security/login.html.twig' %}
+
+{% block staff_google_oauth %}
+  <div class="gb-login-divider">Staff</div>
+  <a href="{{ path('connect_google_start') }}" class="gb-login-register">Sign in with Google</a>
+{% endblock %}

@@ -1,0 +1,44 @@
+{{ form_start(form) }}
+  
+  <div class="form-group">
+        {{ form_label(form.name, 'Name') }}
+        {{ form_widget(form.name, { 'attr': {'placeholder': 'Enter product name'} }) }}
+        {{ form_errors(form.name) }}
+    </div>
+
+    <div class="form-group">
+        {{ form_label(form.description, 'Description') }}
+        {{ form_widget(form.description, { 'attr': {'placeholder': 'Enter product description'} }) }}
+        {{ form_errors(form.description) }}
+    </div>
+
+    <div class="form-group">
+        {{ form_label(form.price, 'Price') }}
+        {{ form_widget(form.price, { 'attr': {'placeholder': 'Enter product price'} }) }}
+        {{ form_errors(form.price) }}
+    </div>
+
+    <div class="form-group">
+        {{ form_label(form.category, 'Category') }}
+        {{ form_widget(form.category, { 'attr': {'placeholder': 'Select a category'} }) }}
+        {{ form_errors(form.category) }}
+    </div>
+
+    <div class="form-group">
+        {{ form_label(form.datetime, 'Date & Time') }}
+        {{ form_widget(form.datetime, { 'attr': {'placeholder': 'Select date and time'} }) }}
+        {{ form_errors(form.datetime) }}
+    </div>
+
+<div class='form-group'>
+    {{ form_label(form.image, 'Product Image') }}
+    {{ form_widget(form.image) }}
+    {{ form_errors(form.image) }}
+</div>
+
+    <div class="form-actions">
+        <button type="submit" class="btn">{{ button_label|default('Save Product') }}</button>
+    </div>
+{{ form_end(form) }}
+ 
+

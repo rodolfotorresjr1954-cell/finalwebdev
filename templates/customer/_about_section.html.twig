@@ -1,0 +1,35 @@
+{# Brand story / About — landing + /about (page_mode adds vertical rhythm) #}
+<section class="gb-story-section{% if page_mode|default(false) %} gb-story-section--page{% endif %}" id="about" aria-labelledby="gb-story-heading">
+  <div class="gb-story-section__bg" aria-hidden="true"></div>
+
+  <div class="gb-story-inner">
+    <div class="gb-story-copy">
+      <p class="gb-story-eyebrow">About us</p>
+      <h2 id="gb-story-heading" class="gb-story-head">
+        <span class="gb-story-head__line gb-story-head__line--accent">Grilled</span>
+        <span class="gb-story-head__line">
+          <span class="gb-story-head__amp">&amp;</span> Bites Burger
+        </span>
+      </h2>
+      <p class="gb-story-lead">Fresh, flavorful, and grilled with care—every single time.</p>
+      <p class="gb-story-body">
+        At Grilled &amp; Bites Burger, we’re all about serving burgers that are fresh, flavorful, and crafted with care. We blend quality ingredients, bold seasonings, and grilled perfection to create burgers that hit the spot every time. Whether you’re craving something hearty, healthy, or perfectly crispy, Grilled &amp; Bites Burger brings you comfort food made with passion.
+      </p>
+    </div>
+
+    <div class="gb-story-visual">
+      <div class="gb-story-frame">
+        <div class="gb-story-frame__shine" aria-hidden="true"></div>
+        <img
+          class="gb-story-frame__img"
+          src="{{ hero_img }}"
+          width="640"
+          height="640"
+          alt="Fresh burger crafted at Grilled &amp; Bites Burger"
+          loading="lazy"
+          onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1550547660-d9450f859349?auto=format&amp;fit=crop&amp;w=900&amp;q=80';"
+        >
+      </div>
+    </div>
+  </div>
+</section>

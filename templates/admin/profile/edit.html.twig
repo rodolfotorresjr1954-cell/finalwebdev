@@ -1,0 +1,44 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit profile{% endblock %}
+
+{% block body %}
+<main class="ue-page">
+    <div class="ue-shell">
+        <a href="{{ path('admin_profile_show') }}" class="ue-back">← Back to profile</a>
+
+        <div class="ue-card">
+            <header class="ue-card__head">
+                <p class="ue-card__eyebrow">Account</p>
+                <h1 class="ue-card__title">Edit profile</h1>
+            </header>
+            <div class="ue-card__body">
+                {{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+
+                <section class="ue-section" aria-labelledby="ap-edit-fields">
+                    <h2 id="ap-edit-fields" class="ue-section__label">Your details</h2>
+                    <div class="ue-grid">
+                        <div class="ue-field">
+                            {{ form_label(form.username) }}
+                            {{ form_widget(form.username, {'attr': {'class': 'ue-input', 'autocomplete': 'username'}}) }}
+                            <div class="ue-errors">{{ form_errors(form.username) }}</div>
+                        </div>
+                        <div class="ue-field">
+                            {{ form_label(form.email) }}
+                            {{ form_widget(form.email, {'attr': {'class': 'ue-input', 'autocomplete': 'email'}}) }}
+                            <div class="ue-errors">{{ form_errors(form.email) }}</div>
+                        </div>
+                    </div>
+                </section>
+
+                <div class="ue-actions">
+                    <a href="{{ path('admin_profile_show') }}" class="ue-btn ue-btn--ghost">Cancel</a>
+                    <button type="submit" class="ue-btn ue-btn--primary">Save changes</button>
+                </div>
+
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock %}

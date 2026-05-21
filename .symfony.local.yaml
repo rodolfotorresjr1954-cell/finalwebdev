@@ -1,0 +1,4 @@
+server:
+  # Ensure PHP loads project CA bundle to avoid cURL error 60 on Windows.
+  env:
+    PHP_INI_SCAN_DIR: "C:\\Users\\Gemma\\bites\\Burger\\php-ini"

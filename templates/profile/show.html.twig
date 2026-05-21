@@ -1,0 +1,70 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}My Profile{% endblock %}
+
+{% block body %}
+<main class="h-full overflow-y-auto">
+    <div class="container px-6 mx-auto py-6">
+        <div class="flex justify-between items-center my-6 gap-4 flex-wrap">
+            <div>
+                <h2 class="text-2xl font-semibold text-gray-700 dark:text-gray-200">My Profile</h2>
+                <p class="text-sm text-gray-500 dark:text-gray-400">Account overview</p>
+            </div>
+
+            <div class="flex space-x-2">
+                <a href="{{ path('profile_edit') }}" class="px-4 py-2 text-sm font-medium leading-5 text-white transition-colors duration-150 bg-blue-600 border border-transparent rounded-lg hover:bg-blue-700">
+                    Edit Profile
+                </a>
+                <a href="{{ path('profile_change_password') }}" class="px-4 py-2 text-sm font-medium leading-5 text-white transition-colors duration-150 bg-purple-600 border border-transparent rounded-lg hover:bg-purple-700">
+                    Change Password
+                </a>
+            </div>
+        </div>
+
+        <div class="bg-white rounded-2xl shadow-md border border-gray-100 overflow-hidden dark:bg-gray-800">
+            <div class="h-28 bg-gradient-to-r from-orange-400 to-orange-600 flex items-center px-6">
+                <div>
+                    <div class="text-white text-xl font-semibold leading-tight">{{ user.username }}</div>
+                    <div class="text-white/90 text-sm">{{ user.email }}</div>
+                </div>
+            </div>
+
+            <div class="p-6">
+                <dl class="grid grid-cols-1 gap-6 sm:grid-cols-2">
+                    <div class="rounded-xl bg-gray-50 border border-gray-100 p-4 dark:bg-gray-900/30 dark:border-gray-700">
+                        <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Role</dt>
+                        <dd class="mt-1 text-sm">
+                            {% if 'ROLE_ADMIN' in user.roles %}
+                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-purple-100 text-purple-800 dark:bg-purple-800 dark:text-purple-100">Admin</span>
+                            {% elseif 'ROLE_STAFF' in user.roles %}
+                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-blue-100 text-blue-800 dark:bg-blue-800 dark:text-blue-100">Staff</span>
+                            {% else %}
+                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-gray-100 text-gray-800">User</span>
+                            {% endif %}
+                        </dd>
+                    </div>
+
+                    <div class="rounded-xl bg-gray-50 border border-gray-100 p-4 dark:bg-gray-900/30 dark:border-gray-700">
+                        <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Status</dt>
+                        <dd class="mt-1 text-sm">
+                            {% if user.isActive %}
+                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-green-100 text-green-800 dark:bg-green-800 dark:text-green-100">Active</span>
+                            {% else %}
+                                <span class="px-2 py-1 text-xs font-semibold rounded-full bg-red-100 text-red-800 dark:bg-red-800 dark:text-red-100">Inactive</span>
+                            {% endif %}
+                        </dd>
+                    </div>
+
+                    <div class="sm:col-span-2 rounded-xl bg-gray-50 border border-gray-100 p-4 dark:bg-gray-900/30 dark:border-gray-700">
+                        <dt class="text-sm font-medium text-gray-500 dark:text-gray-400">Date Created</dt>
+                        <dd class="mt-1 text-sm text-gray-900 dark:text-gray-200">
+                            {{ user.createdAt ? user.createdAt|date('Y-m-d H:i:s') : 'N/A' }}
+                        </dd>
+                    </div>
+                </dl>
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock %}
+

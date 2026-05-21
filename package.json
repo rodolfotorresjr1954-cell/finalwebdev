@@ -1,0 +1,30 @@
+{
+  "name": "burger",
+  "version": "1.0.0",
+  "description": "",
+  "main": "index.js",
+  "directories": {
+    "test": "tests"
+  },
+  "scripts": {
+    "dev-server": "encore-dev-server",
+    "dev": "encore dev",
+    "watch": "encore dev --watch",
+    "build": "encore production --progress"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/krisha116/Burger.git"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "bugs": {
+    "url": "https://github.com/krisha116/Burger/issues"
+  },
+  "homepage": "https://github.com/krisha116/Burger#readme",
+  "dependencies": {
+    "@symfony/stimulus-bridge": "^4.0.1",
+    "@symfony/webpack-encore": "^5.2.0"
+  }
+}

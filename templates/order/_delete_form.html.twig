@@ -1,0 +1,4 @@
+<form method="post" action="{{ path('app_order_delete', {id: order.id}) }}" class="cd-inline-form" onsubmit="return confirm('Are you sure you want to delete this order?');">
+    <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ order.id) }}">
+    <button type="submit" class="ue-btn ue-btn--danger">Delete order</button>
+</form>

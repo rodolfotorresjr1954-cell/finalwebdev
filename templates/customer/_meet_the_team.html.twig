@@ -1,0 +1,59 @@
+{# Meet the Team — About page; uses gb-team-* styles in _shop_shared_styles #}
+{% set team_photo = team_photo|default(asset('uploads/images/team-krisha-torres.png')) %}
+<section class="gb-team-section" id="meet-the-team" aria-labelledby="gb-team-heading">
+  <div class="gb-team-section__bg" aria-hidden="true"></div>
+
+  <div class="gb-team-inner">
+    <header class="gb-team-header">
+      <p class="gb-story-eyebrow">Our people</p>
+      <h2 id="gb-team-heading" class="gb-team-title">Meet the Team</h2>
+      <p class="gb-team-intro">Dedicated people keeping Grilled &amp; Bites Burger running smoothly every day.</p>
+    </header>
+
+    {# Responsive grid: 1 col &lt;768px (like col-sm-12), 2 cols ≥768px (like col-md-6), max width on large screens #}
+    <ul class="gb-team-grid" role="list">
+      <li class="gb-team-grid__cell">
+        <article class="gb-team-card">
+          <div class="gb-team-card__media">
+            <img
+              class="gb-team-card__img"
+              src="{{ team_photo }}"
+              width="280"
+              height="280"
+              alt="Krisha Torres, Manager at Grilled &amp; Bites Burger"
+              loading="lazy"
+              decoding="async"
+              onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&amp;fit=crop&amp;w=400&amp;h=400&amp;q=80';"
+            >
+          </div>
+          <div class="gb-team-card__body">
+            <h3 class="gb-team-card__name">Krisha Torres</h3>
+            <p class="gb-team-card__role">Manager</p>
+            <p class="gb-team-card__desc">Oversees operations, manages the system, and ensures smooth business workflow.</p>
+          </div>
+        </article>
+      </li>
+      <li class="gb-team-grid__cell">
+        <article class="gb-team-card">
+          <div class="gb-team-card__media">
+            <img
+              class="gb-team-card__img"
+              src="{{ team_photo }}"
+              width="280"
+              height="280"
+              alt="Krisha Torres, Staff at Grilled &amp; Bites Burger"
+              loading="lazy"
+              decoding="async"
+              onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1494790108377-be9c29b29330?auto=format&amp;fit=crop&amp;w=400&amp;h=400&amp;q=80';"
+            >
+          </div>
+          <div class="gb-team-card__body">
+            <h3 class="gb-team-card__name">Krisha Torres</h3>
+            <p class="gb-team-card__role">Staff</p>
+            <p class="gb-team-card__desc">Handles daily tasks, assists customers, and processes orders efficiently.</p>
+          </div>
+        </article>
+      </li>
+    </ul>
+  </div>
+</section>

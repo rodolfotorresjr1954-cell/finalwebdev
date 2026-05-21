@@ -1,0 +1,84 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Activity log #{{ log.id }}{% endblock %}
+
+{% block body %}
+<main class="ald-page">
+    <div class="ald-shell">
+        <div class="ald-toolbar">
+            <a href="{{ path('admin_activity_log_index') }}" class="ald-back">← Back to logs</a>
+        </div>
+
+        <article class="ald-card">
+            <h1 class="pp-sr-only">Activity log #{{ log.id }}</h1>
+
+            {% set roleVal = log.role %}
+            {% if not roleVal and log.user %}
+                {% set roleVal = log.user.roles|first %}
+            {% endif %}
+
+            <dl class="ald-dl">
+                <div>
+                    <dt>Timestamp</dt>
+                    <dd>
+                        {% if log.createdAt %}
+                            <time datetime="{{ log.createdAt|date('c') }}">{{ log.createdAt|date('M j, Y') }}</time>
+                            <p class="us-meta-note">{{ log.createdAt|date('H:i:s') }}</p>
+                        {% else %}
+                            —
+                        {% endif %}
+                    </dd>
+                </div>
+                <div>
+                    <dt>User</dt>
+                    <dd>{{ log.username ?? (log.user ? log.user.username : '—') }}</dd>
+                </div>
+                <div>
+                    <dt>Role</dt>
+                    <dd>
+                        {% if roleVal == 'ROLE_ADMIN' %}
+                            <span class="um-badge um-badge--admin">Admin</span>
+                        {% elseif roleVal == 'ROLE_STAFF' %}
+                            <span class="um-badge um-badge--staff">Staff</span>
+                        {% else %}
+                            <span class="um-badge um-badge--user">User</span>
+                        {% endif %}
+                    </dd>
+                </div>
+                <div>
+                    <dt>Action</dt>
+                    <dd>
+                        {% if log.action == 'CREATE' %}
+                            <span class="al-act-badge al-act-badge--create">Create</span>
+                        {% elseif log.action == 'UPDATE' %}
+                            <span class="al-act-badge al-act-badge--update">Update</span>
+                        {% elseif log.action == 'DELETE' %}
+                            <span class="al-act-badge al-act-badge--delete">Delete</span>
+                        {% elseif log.action == 'LOGIN' %}
+                            <span class="al-act-badge al-act-badge--login">Login</span>
+                        {% elseif log.action == 'LOGOUT' %}
+                            <span class="al-act-badge al-act-badge--logout">Logout</span>
+                        {% elseif log.action in ['PASSWORD_CHANGE', 'PASSWORD_RESET'] %}
+                            <span class="al-act-badge al-act-badge--password">{{ log.action|replace({'_': ' '}) }}</span>
+                        {% else %}
+                            <span class="al-act-badge al-act-badge--default">{{ log.action }}</span>
+                        {% endif %}
+                    </dd>
+                </div>
+                <div>
+                    <dt>Entity type</dt>
+                    <dd>{{ log.entityType|default('—') }}</dd>
+                </div>
+                <div>
+                    <dt>Entity ID</dt>
+                    <dd>{{ log.entityId is not null ? log.entityId : '—' }}</dd>
+                </div>
+                <div class="ald-dl__full">
+                    <dt>Description</dt>
+                    <dd>{{ log.description|default('—') }}</dd>
+                </div>
+            </dl>
+        </article>
+    </div>
+</main>
+{% endblock %}

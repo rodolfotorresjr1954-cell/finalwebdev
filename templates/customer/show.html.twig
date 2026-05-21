@@ -1,0 +1,65 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ customer.Name }} — Customer{% endblock %}
+
+{% block body %}
+<main class="us-page">
+    <div class="us-shell">
+        <a href="{{ path('app_customer_index') }}" class="ue-back">← Back to customers</a>
+
+        {% if is_granted('ROLE_ADMIN') or (app.user and customer.createdBy and customer.createdBy.id == app.user.id) %}
+            <div class="ap-toolbar">
+                <a href="{{ path('app_customer_edit', {id: customer.id}) }}" class="ue-btn ue-btn--primary">Edit customer</a>
+                {{ include('customer/_delete_form.html.twig') }}
+            </div>
+        {% endif %}
+
+        <article class="us-card">
+            <header class="us-card__profile">
+                {% set cd_name = customer.Name|default('') %}
+                <div class="us-avatar" aria-hidden="true">{{ (cd_name ?: '?')|trim|first|upper }}</div>
+                <div>
+                    <h1 class="us-name">{{ cd_name ?: 'Customer' }}</h1>
+                    <p class="us-email">
+                        <a href="mailto:{{ customer.Email }}">{{ customer.Email }}</a>
+                    </p>
+                </div>
+            </header>
+
+            <dl class="us-dl">
+                <div>
+                    <dt>Customer ID</dt>
+                    <dd><span class="cd-mono">#{{ customer.id }}</span></dd>
+                </div>
+                <div>
+                    <dt>Phone</dt>
+                    <dd>
+                        {% if customer.Phone %}
+                            <a href="tel:{{ customer.Phone }}">{{ customer.Phone }}</a>
+                        {% else %}
+                            <span class="cd-empty">—</span>
+                        {% endif %}
+                    </dd>
+                </div>
+                <div class="us-dl__full">
+                    <dt>Member since</dt>
+                    <dd>
+                        {% if customer.createAt %}
+                            <time datetime="{{ customer.createAt|date('c') }}">{{ customer.createAt|date('M j, Y') }}</time>
+                            <p class="us-meta-note">{{ customer.createAt|date('g:i A') }} · {{ customer.createAt|date('Y-m-d H:i:s') }}</p>
+                        {% else %}
+                            <span class="cd-empty">—</span>
+                        {% endif %}
+                    </dd>
+                </div>
+                {% if customer.createdBy %}
+                    <div class="us-dl__full">
+                        <dt>Recorded by</dt>
+                        <dd>{{ customer.createdBy.username }}</dd>
+                    </div>
+                {% endif %}
+            </dl>
+        </article>
+    </div>
+</main>
+{% endblock %}

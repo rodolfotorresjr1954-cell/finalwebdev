@@ -1,0 +1,85 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}New order{% endblock %}
+
+{% block body %}
+{% block header_search %}{% endblock %}
+
+<main class="ue-page">
+    <div class="ue-shell">
+        <a href="{{ path('app_order_index') }}" class="ue-back">← Back to orders</a>
+
+        <div class="ue-card">
+            <header class="ue-card__head">
+                <p class="ue-card__eyebrow">Orders</p>
+                <h1 class="ue-card__title">Create order</h1>
+            </header>
+            <div class="ue-card__body">
+                {{ form_start(form, {attr: {novalidate: 'novalidate'}}) }}
+
+                <div class="ue-grid ue-grid--stack">
+                    <div class="ue-field">
+                        {{ form_label(form.products, 'Product') }}
+                        {{ form_widget(form.products, {attr: {class: 'ue-select'}}) }}
+                        <div class="ue-errors">{{ form_errors(form.products) }}</div>
+                    </div>
+                </div>
+
+                <div class="ue-grid ue-section--tight-top">
+                    <div class="ue-field">
+                        {{ form_label(form.Total, 'Total (₱)') }}
+                        {{ form_widget(form.Total, {attr: {class: 'ue-input', placeholder: '0.00', step: '0.01', inputmode: 'decimal', 'data-order-total-input': '1'}}) }}
+                        <div class="ue-errors">{{ form_errors(form.Total) }}</div>
+                    </div>
+                    <div class="ue-field">
+                        {{ form_label(form.Status, 'Status') }}
+                        {{ form_widget(form.Status, {attr: {class: 'ue-select'}}) }}
+                        <div class="ue-errors">{{ form_errors(form.Status) }}</div>
+                    </div>
+                    <div class="ue-field">
+                        {{ form_label(form.paymentMethod, 'Payment') }}
+                        {{ form_widget(form.paymentMethod, {attr: {class: 'ue-select'}}) }}
+                        <div class="ue-errors">{{ form_errors(form.paymentMethod) }}</div>
+                    </div>
+                </div>
+
+                <div class="ue-actions">
+                    <a href="{{ path('app_order_index') }}" class="ue-btn ue-btn--ghost">Cancel</a>
+                    <button type="submit" class="ue-btn ue-btn--primary">Create order</button>
+                </div>
+
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </div>
+</main>
+
+<script type="application/json" id="order-product-prices">{{ productPriceMap|default({})|json_encode|raw }}</script>
+<script>
+(function () {
+    document.addEventListener('DOMContentLoaded', function () {
+        var dataEl = document.getElementById('order-product-prices');
+        var prices = {};
+        if (dataEl && dataEl.textContent) {
+            try { prices = JSON.parse(dataEl.textContent); } catch (e) { prices = {}; }
+        }
+        var sel = document.querySelector('[data-order-product-select="1"]');
+        var total = document.querySelector('[data-order-total-input="1"]');
+        if (!sel || !total) return;
+
+        function applyPrice() {
+            var id = sel.value;
+            if (!id || !Object.prototype.hasOwnProperty.call(prices, id)) return;
+            var p = prices[id];
+            if (p == null) return;
+            var n = Number(p);
+            if (!isNaN(n)) {
+                total.value = n.toFixed(2);
+            }
+        }
+
+        sel.addEventListener('change', applyPrice);
+    });
+})();
+</script>
+{% endblock %}

@@ -1,0 +1,60 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}My profile{% endblock %}
+
+{% block body %}
+<main class="us-page">
+    <div class="us-shell">
+        <div class="ap-toolbar">
+            <a href="{{ path('admin_profile_edit') }}" class="ue-btn ue-btn--primary">Edit profile</a>
+            <a href="{{ path('admin_profile_change_password') }}" class="ue-btn ue-btn--outline">Change password</a>
+        </div>
+
+        <article class="us-card">
+            <header class="us-card__profile">
+                <div class="us-avatar" aria-hidden="true">{{ user.username|first|upper }}</div>
+                <div>
+                    <h1 class="us-name">{{ user.username }}</h1>
+                    <p class="us-email">{{ user.email }}</p>
+                </div>
+            </header>
+
+            <dl class="us-dl">
+                <div>
+                    <dt>Role</dt>
+                    <dd>
+                        {% if 'ROLE_ADMIN' in user.roles %}
+                            <span class="um-badge um-badge--admin">Admin</span>
+                        {% elseif 'ROLE_STAFF' in user.roles %}
+                            <span class="um-badge um-badge--staff">Staff</span>
+                        {% else %}
+                            <span class="um-badge um-badge--user">User</span>
+                        {% endif %}
+                    </dd>
+                </div>
+                <div>
+                    <dt>Status</dt>
+                    <dd>
+                        {% if user.isActive %}
+                            <span class="um-badge um-badge--active">Active</span>
+                        {% else %}
+                            <span class="um-badge um-badge--inactive">Inactive</span>
+                        {% endif %}
+                    </dd>
+                </div>
+                <div class="us-dl__full">
+                    <dt>Member since</dt>
+                    <dd>
+                        {% if user.createdAt %}
+                            <time datetime="{{ user.createdAt|date('c') }}">{{ user.createdAt|date('M j, Y') }}</time>
+                            <p class="us-meta-note">{{ user.createdAt|date('Y-m-d H:i:s') }}</p>
+                        {% else %}
+                            —
+                        {% endif %}
+                    </dd>
+                </div>
+            </dl>
+        </article>
+    </div>
+</main>
+{% endblock %}

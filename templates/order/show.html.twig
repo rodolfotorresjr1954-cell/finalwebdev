@@ -1,0 +1,91 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Order #{{ order.id }}{% endblock %}
+
+{% block body %}
+{% block header_search %}{% endblock %}
+
+{% set productNameParts = [] %}
+{% for p in order.products %}
+    {% set productNameParts = productNameParts|merge([p.Name]) %}
+{% endfor %}
+{% set productNamesJoined = productNameParts|join(', ') %}
+{% set displayOrderName = productNamesJoined != '' ? productNamesJoined : order.Name %}
+{% set categoryLabels = order_category_labels(order) %}
+
+<main class="ald-page">
+    <div class="ald-shell">
+        <div class="ald-toolbar">
+            <a href="{{ path('app_order_index') }}" class="ald-back">← Back to orders</a>
+        </div>
+
+        {% if is_granted('ROLE_ADMIN') or is_granted('ROLE_STAFF') or (app.user and order.createdBy and order.createdBy.id == app.user.id) %}
+            <div class="ap-toolbar">
+                {% if order.Status|lower != 'completed' %}
+                    <a href="{{ path('app_order_edit', {id: order.id}) }}" class="ue-btn ue-btn--primary">Edit order</a>
+                {% endif %}
+                {{ include('order/_delete_form.html.twig') }}
+            </div>
+        {% endif %}
+
+        <article class="ald-card">
+            <h1 class="pp-sr-only">Order {{ order.id }}</h1>
+            <header class="ald-card__head">
+                <p class="ue-card__eyebrow">Sales record</p>
+                <h2 class="ue-card__title">Order #{{ order.id }}</h2>
+                <p class="ue-card__sub os-order-line">{{ displayOrderName }}</p>
+            </header>
+
+            <dl class="ald-dl">
+                <div>
+                    <dt>Customer</dt>
+                    <dd>{{ order.Customer ? order.Customer.Name : '—' }}</dd>
+                </div>
+                <div>
+                    <dt>Category</dt>
+                    <dd>{{ categoryLabels }}</dd>
+                </div>
+                <div>
+                    <dt>Status</dt>
+                    <dd>
+                        {% set st = order.Status|lower %}
+                        {% if st in ['completed', 'approved', 'paid', 'delivered'] %}
+                            <span class="order-status order-status--success">{{ order.Status }}</span>
+                        {% elseif st == 'pending' %}
+                            <span class="order-status order-status--warning">{{ order.Status }}</span>
+                        {% elseif st in ['cancelled', 'canceled', 'expired'] %}
+                            <span class="order-status order-status--muted">{{ order.Status }}</span>
+                        {% else %}
+                            <span class="order-status order-status--danger">{{ order.Status }}</span>
+                        {% endif %}
+                    </dd>
+                </div>
+                <div>
+                    <dt>Placed</dt>
+                    <dd>
+                        {% if order.createAt %}
+                            <time datetime="{{ order.createAt|date('c') }}">{{ order.createAt|date('M j, Y') }}</time>
+                            <p class="us-meta-note">{{ order.createAt|date('g:i A') }}</p>
+                        {% else %}
+                            —
+                        {% endif %}
+                    </dd>
+                </div>
+                <div>
+                    <dt>Total</dt>
+                    <dd><strong class="os-order-total">₱{{ order.Total|number_format(2, '.', ',') }}</strong></dd>
+                </div>
+                <div class="ald-dl__full">
+                    <dt>Payment</dt>
+                    <dd>
+                        {% if order.paymentMethod == 'cash' %}Cash
+                        {% elseif order.paymentMethod == 'gcash' %}GCash
+                        {% elseif order.paymentMethod == 'atm' %}ATM
+                        {% else %}—{% endif %}
+                    </dd>
+                </div>
+            </dl>
+        </article>
+    </div>
+</main>
+{% endblock %}

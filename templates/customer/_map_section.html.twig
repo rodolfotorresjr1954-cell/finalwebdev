@@ -1,0 +1,54 @@
+{# Google Maps — Daro, Dumaguete City, Negros Oriental, 6200, Philippines #}
+{% set map_query = 'Daro, Dumaguete City, Negros Oriental, 6200, Philippines' %}
+{% set map_search_url = 'https://www.google.com/maps/search/?api=1&query=' ~ map_query|url_encode %}
+{% set map_dir_url = 'https://www.google.com/maps/dir/?api=1&destination=' ~ map_query|url_encode %}
+
+<section class="gb-map-section" id="location" aria-labelledby="gb-map-heading">
+  <div class="gb-map-section__bg" aria-hidden="true"></div>
+
+  <div class="gb-map-inner">
+    <header class="gb-map-intro">
+      <div class="gb-map-intro__badge">
+        <span class="gb-map-intro__icon" aria-hidden="true">
+          <svg xmlns="http://www.w3.org/2000/svg" width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"/><circle cx="12" cy="10" r="3"/></svg>
+        </span>
+        <span class="gb-map-intro__eyebrow">Visit us</span>
+      </div>
+
+      <h2 id="gb-map-heading" class="gb-map-title">Find us in Dumaguete</h2>
+      <p class="gb-map-lead">We’re rooted in <strong>Daro</strong>—easy to reach, whether you’re picking up or planning your next burger run.</p>
+
+      <address class="gb-map-address">
+        <span class="gb-map-address__line">{{ map_query }}</span>
+      </address>
+
+      <div class="gb-map-ctas">
+        <a class="gb-map-btn gb-map-btn--primary" href="{{ map_dir_url }}" target="_blank" rel="noopener noreferrer">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.25" aria-hidden="true"><path d="M12 2v4M12 18v4M4.93 4.93l2.83 2.83M16.24 16.24l2.83 2.83M2 12h4M18 12h4M4.93 19.07l2.83-2.83M16.24 7.76l2.83-2.83"/><circle cx="12" cy="12" r="3"/></svg>
+          Get directions
+        </a>
+        <a class="gb-map-btn gb-map-btn--ghost" href="{{ map_search_url }}" target="_blank" rel="noopener noreferrer">
+          Open in Google Maps
+        </a>
+      </div>
+    </header>
+
+    <div class="gb-map-stage" aria-label="Map of our location">
+      <div class="gb-map-stage__ring">
+        <div class="gb-map-frame-wrap">
+          <iframe
+            class="gb-map-frame"
+            title="Map — Daro, Dumaguete City, Negros Oriental, Philippines"
+            loading="lazy"
+            referrerpolicy="no-referrer-when-downgrade"
+            allowfullscreen
+            src="https://www.google.com/maps?q={{ map_query|url_encode }}&amp;hl=en&amp;z=15&amp;output=embed"
+          ></iframe>
+        </div>
+      </div>
+      <p class="gb-map-hint">
+        <kbd>Ctrl</kbd> + scroll <span class="gb-map-hint__sep">·</span> or pinch to zoom inside the map
+      </p>
+    </div>
+  </div>
+</section>

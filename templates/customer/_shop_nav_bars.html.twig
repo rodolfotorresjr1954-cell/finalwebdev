@@ -1,0 +1,64 @@
+{# Shared top nav + mobile drawer. Optional: on_menu_page, on_about_page, on_my_orders_page, cartProducts #}
+{% set on_menu_page = on_menu_page|default(false) %}
+{% set on_about_page = on_about_page|default(false) %}
+{% set on_my_orders_page = on_my_orders_page|default(false) %}
+{% set url_menu = path('customer_menu') %}
+{% set url_about = path('customer_about') %}
+{% set url_home = path('app_home') %}
+{% set off_landing = off_landing|default(on_menu_page or on_about_page) %}
+{% set link_home = off_landing ? url_home : '#home' %}
+{% set link_explore = off_landing ? url_home ~ '#best-seller' : '#best-seller' %}
+{% set link_contact = path('customer_contact') %}
+
+<div class="gb-top-nav">
+  <div class="gb-top-nav-inner">
+    <a href="{{ url_home }}" class="gb-logo">Grilled &amp; Bites Burger</a>
+
+    <ul class="gb-nav-center">
+      <li><a href="{{ link_home }}">Home</a></li>
+      <li>
+        <a href="{{ url_menu }}" class="{{ on_menu_page ? 'gb-nav-link--active' : '' }}"{% if on_menu_page %} aria-current="page"{% endif %}>Menu</a>
+      </li>
+      <li>
+        <a href="{{ url_about }}" class="{{ on_about_page ? 'gb-nav-link--active' : '' }}"{% if on_about_page %} aria-current="page"{% endif %}>About</a>
+      </li>
+      <li>
+        <a href="{{ path('customer_my_orders') }}" class="{{ on_my_orders_page ? 'gb-nav-link--active' : '' }}"{% if on_my_orders_page %} aria-current="page"{% endif %}>Order</a>
+      </li>
+      <li><a href="{{ link_contact }}">Contact us</a></li>
+    </ul>
+
+    <div class="gb-nav-right">
+      <div class="gb-auth-links">
+        {% if app.user %}
+          <a href="{{ path('profile_show') }}">Account</a>
+          <span class="gb-auth-sep">|</span>
+          <a href="{{ path('app_logout') }}">Logout</a>
+        {% else %}
+          <a href="{{ path('app_login') }}">Log in</a>
+          <span class="gb-auth-sep">|</span>
+          <a href="{{ path('app_register') }}">Register</a>
+        {% endif %}
+      </div>
+    </div>
+
+    <button type="button" class="gb-nav-toggle" @click="mobileOpen = true" aria-label="Open menu">☰</button>
+  </div>
+</div>
+
+<div class="gb-mobile-menu" x-show="mobileOpen" x-transition x-cloak>
+  <button type="button" @click="mobileOpen = false" style="position:absolute;top:1rem;right:1rem;background:transparent;border:none;color:#fff;font-size:1.75rem;cursor:pointer;line-height:1;">&times;</button>
+  <a href="{{ link_home }}" @click="mobileOpen = false">Home</a>
+  <a href="{{ url_menu }}" @click="mobileOpen = false">Menu</a>
+  <a href="{{ url_about }}" @click="mobileOpen = false">About</a>
+  <a href="{{ path('customer_my_orders') }}" @click="mobileOpen = false">Order</a>
+  <a href="{{ link_explore }}" @click="mobileOpen = false">Explore</a>
+  <a href="{{ link_contact }}" @click="mobileOpen = false">Contact</a>
+  {% if app.user %}
+    <a href="{{ path('profile_show') }}" @click="mobileOpen = false">Account</a>
+    <a href="{{ path('app_logout') }}" @click="mobileOpen = false">Logout</a>
+  {% else %}
+    <a href="{{ path('app_login') }}" @click="mobileOpen = false">Log in</a>
+    <a href="{{ path('app_register') }}" @click="mobileOpen = false">Register</a>
+  {% endif %}
+</div>

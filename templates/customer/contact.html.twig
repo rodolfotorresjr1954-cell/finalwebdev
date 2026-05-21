@@ -1,0 +1,193 @@
+{% extends 'layout/adventure_landing.html.twig' %}
+
+{% block title %}Contact us — Grilled &amp; Bites Burger{% endblock %}
+
+{% block stylesheets %}
+<style>
+{% include 'customer/_shop_shared_styles.html.twig' %}
+
+.gb-contact-page-wrap {
+  padding-top: 88px;
+}
+
+.gb-contact-form-section {
+  padding: clamp(2.75rem, 6vw, 4.5rem) clamp(1.15rem, 4vw, 1.75rem);
+  background: linear-gradient(175deg, #f0f1f4 0%, #e6e8ed 45%, #eef0f3 100%);
+}
+
+.gb-contact-form-inner {
+  max-width: 920px;
+  margin: 0 auto;
+}
+
+.gb-contact-form-card {
+  background: rgba(255, 255, 255, 0.82);
+  border: 1px solid rgba(15, 23, 42, 0.08);
+  border-radius: 18px;
+  box-shadow: 0 24px 48px rgba(15, 23, 42, 0.10);
+  overflow: hidden;
+}
+
+.gb-contact-form-card__head {
+  padding: 1.25rem 1.25rem 0;
+}
+
+.gb-contact-form-card__title {
+  margin: 0;
+  font-family: 'Cinzel', serif;
+  font-weight: 800;
+  font-size: clamp(1.35rem, 3.25vw, 1.9rem);
+  color: #0f172a;
+}
+
+.gb-contact-form-card__sub {
+  margin: 0.5rem 0 0;
+  font-family: 'Montserrat', sans-serif;
+  color: #64748b;
+  line-height: 1.55;
+  font-weight: 500;
+}
+
+.gb-contact-form-card__body {
+  padding: 1.25rem;
+}
+
+.gb-contact-form-grid {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 1rem;
+}
+
+@media (min-width: 768px) {
+  .gb-contact-form-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+.gb-contact-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.35rem;
+  font-family: 'Montserrat', sans-serif;
+}
+
+.gb-contact-field label {
+  font-weight: 700;
+  font-size: 0.78rem;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  color: rgba(15, 23, 42, 0.75);
+}
+
+.gb-contact-field input,
+.gb-contact-field textarea {
+  width: 100%;
+  border: 1px solid rgba(15, 23, 42, 0.14);
+  border-radius: 12px;
+  padding: 0.85rem 0.95rem;
+  font: inherit;
+  background: rgba(255, 255, 255, 0.9);
+  color: #0f172a;
+  outline: none;
+}
+
+.gb-contact-field textarea {
+  min-height: 140px;
+  resize: vertical;
+}
+
+.gb-contact-field input:focus,
+.gb-contact-field textarea:focus {
+  border-color: rgba(245, 197, 24, 0.85);
+  box-shadow: 0 0 0 3px rgba(245, 197, 24, 0.18);
+}
+
+.gb-contact-actions {
+  display: flex;
+  justify-content: flex-end;
+  margin-top: 0.75rem;
+}
+
+.gb-contact-submit {
+  border: none;
+  border-radius: 14px;
+  padding: 0.95rem 1.35rem;
+  font-family: 'Montserrat', sans-serif;
+  font-weight: 800;
+  letter-spacing: 0.08em;
+  text-transform: uppercase;
+  cursor: pointer;
+  background: linear-gradient(135deg, #ffd54a, #f5c518 40%, #c9a227);
+  color: #1a1208;
+}
+
+.gb-contact-submit:hover {
+  filter: brightness(1.03);
+}
+
+.gb-brevo-note {
+  font-family: 'Montserrat', sans-serif;
+  font-size: 0.95rem;
+  color: #334155;
+  background: rgba(15, 23, 42, 0.04);
+  border: 1px solid rgba(15, 23, 42, 0.10);
+  border-radius: 14px;
+  padding: 1rem;
+}
+
+.gb-brevo-note code {
+  font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+  font-size: 0.92em;
+}
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="adv-page" x-data="{ mobileOpen: false }">
+  <header class="gb-menu-page-header">
+    {% include 'customer/_shop_nav_bars.html.twig' with { on_menu_page: false, on_about_page: false, off_landing: true, cartProducts: cartProducts|default([]) } %}
+  </header>
+
+  <main class="gb-contact-page-wrap">
+    <section class="gb-contact-form-section" aria-labelledby="gb-contact-form-title">
+      <div class="gb-contact-form-inner">
+        <div class="gb-contact-form-card">
+          <div class="gb-contact-form-card__head">
+            <h1 class="gb-contact-form-card__title" id="gb-contact-form-title">Send us a message</h1>
+            <p class="gb-contact-form-card__sub"></p>
+          </div>
+          <div class="gb-contact-form-card__body">
+            <form method="post" action="{{ path('customer_contact_submit') }}" class="gb-contact-form" novalidate>
+              <input type="hidden" name="_token" value="{{ csrf_token('contact_submit') }}">
+
+              <div class="gb-contact-form-grid">
+                <div class="gb-contact-field">
+                  <label for="contact_name">Name</label>
+                  <input id="contact_name" name="name" type="text" required maxlength="120" autocomplete="name">
+                </div>
+
+                <div class="gb-contact-field">
+                  <label for="contact_email">Email</label>
+                  <input id="contact_email" name="email" type="email" required maxlength="180" autocomplete="email">
+                </div>
+
+                <div class="gb-contact-field" style="grid-column: 1 / -1;">
+                  <label for="contact_message">Message</label>
+                  <textarea id="contact_message" name="message" required maxlength="4000"></textarea>
+                </div>
+              </div>
+
+              <div class="gb-contact-actions">
+                <button type="submit" class="gb-contact-submit">Send</button>
+              </div>
+            </form>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    {% include 'customer/_contact_footer.html.twig' %}
+  </main>
+</div>
+{% endblock %}
+

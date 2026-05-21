@@ -1,0 +1,35 @@
+{% extends 'layout/adventure_landing.html.twig' %}
+
+{% block title %}About — Grilled &amp; Bites Burger{% endblock %}
+
+{% block stylesheets %}
+<style>
+{% include 'customer/_shop_shared_styles.html.twig' %}
+</style>
+{% endblock %}
+
+{% block body %}
+{% set hero_img = asset('uploads/images/double-cheese-burger-69bc46d125017.jpg') %}
+<div class="adv-page" x-data="{ mobileOpen: false }">
+  <header class="gb-menu-page-header">
+    {% include 'customer/_shop_nav_bars.html.twig' with { on_menu_page: false, on_about_page: true, cartProducts: cartProducts } %}
+  </header>
+
+  {% include 'customer/_about_section.html.twig' with { hero_img: hero_img, page_mode: true } %}
+
+  {% include 'customer/_meet_the_team.html.twig' %}
+
+  {% include 'customer/_contact_footer.html.twig' %}
+
+  {% if cartProducts|length > 0 %}
+    <a href="{{ path('customer_checkout') }}" class="adv-cart-fab" aria-label="Checkout">
+      🛒
+      <span>{{ cartProducts|length }}</span>
+    </a>
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+{% endblock %}

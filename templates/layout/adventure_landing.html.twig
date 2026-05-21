@@ -1,0 +1,29 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
+    <title>{% block title %}Grilled & Bites Burger{% endblock %}</title>
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 128 128%22><text y=%221.2em%22 font-size=%2296%22>🍔</text></svg>">
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Abril+Fatface&family=Cinzel:wght@600;700;900&family=Montserrat:wght@400;600;700&family=Pacifico&family=Poppins:ital,wght@0,300;0,400;0,500;0,600;0,700;1,400&family=Yellowtail&display=swap" rel="stylesheet">
+    <style>[x-cloak]{display:none!important}</style>
+    {{ encore_entry_link_tags('app') }}
+    {% block stylesheets %}{% endblock %}
+</head>
+<body class="adv-body">
+    {% for label, messages in app.flashes %}
+        {% for message in messages %}
+            <div class="adv-flash adv-flash-{{ label }}" role="alert">
+                <span>{{ message }}</span>
+                <button type="button" class="adv-flash-close" onclick="this.parentElement.remove()" aria-label="Close">&times;</button>
+            </div>
+        {% endfor %}
+    {% endfor %}
+    {% block body %}{% endblock %}
+    <script defer src="https://cdn.jsdelivr.net/npm/alpinejs@3.x.x/dist/cdn.min.js"></script>
+    {% block javascripts %}{% endblock %}
+</body>
+</html>

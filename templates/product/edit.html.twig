@@ -1,0 +1,104 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Edit {{ product.name }}{% endblock %}
+
+{% block body %}
+{% block header_search %}{% endblock %}
+
+<main class="ue-page">
+    <div class="ue-shell">
+        <a href="{{ path('app_product_show', {'id': product.id}) }}" class="ue-back">← Back to product</a>
+
+        <div class="ue-card">
+            <header class="ue-card__head">
+                <p class="ue-card__eyebrow">Catalog · #{{ product.id }}</p>
+                <h1 class="ue-card__title">Edit product</h1>
+                <p class="ue-card__sub">{{ product.name }}</p>
+                <div class="pd-toolbar pd-toolbar--head">
+                    <a href="{{ path('app_product_index') }}" class="ue-btn ue-btn--ghost">All products</a>
+                    {% if is_granted('ROLE_ADMIN') or (app.user and product.createdBy and product.createdBy.id == app.user.id) %}
+                        {{ include('product/_delete_form.html.twig') }}
+                    {% endif %}
+                </div>
+            </header>
+
+            <div class="ue-card__body">
+                {{ form_start(form, {attr: {novalidate: 'novalidate'}}) }}
+
+                <div class="ue-grid">
+                    <div class="ue-field">
+                        {{ form_label(form.name, 'Product name') }}
+                        {{ form_widget(form.name) }}
+                        <div class="ue-errors">{{ form_errors(form.name) }}</div>
+                    </div>
+                    <div class="ue-field">
+                        {{ form_label(form.price, 'Price') }}
+                        {{ form_widget(form.price, {attr: {class: 'ue-input', placeholder: '0.00', inputmode: 'decimal'}}) }}
+                        <div class="ue-errors">{{ form_errors(form.price) }}</div>
+                    </div>
+                    <div class="ue-field">
+                        {{ form_label(form.category, 'Category') }}
+                        {{ form_widget(form.category, {attr: {class: 'ue-select'}}) }}
+                        <div class="ue-errors">{{ form_errors(form.category) }}</div>
+                        <span class="ue-lock-tag" aria-live="polite">burger, fries, or milktea</span>
+                    </div>
+                </div>
+
+                <section class="ue-section ue-section--tight-top">
+                    <div class="ue-field">
+                        {{ form_label(form.description, 'Description') }}
+                        {{ form_widget(form.description, {attr: {class: 'ue-input ue-textarea', placeholder: 'Ingredients, allergens, or serving notes…', rows: 5}}) }}
+                        <div class="ue-errors">{{ form_errors(form.description) }}</div>
+                    </div>
+                </section>
+
+                <section class="ue-section">
+                    <div class="ue-field ue-file-field">
+                        {{ form_label(form.image, 'Product image') }}
+                        {% if product.image %}
+                            <img class="pd-thumb" src="{{ asset('uploads/images/' ~ product.image) }}" alt="Current image for {{ product.name|e('html_attr') }}">
+                        {% endif %}
+                        {{ form_widget(form.image, {attr: {class: 'ue-file-input'}}) }}
+                        <div class="ue-errors">{{ form_errors(form.image) }}</div>
+                        <p class="ue-section__hint ue-section__hint--after-input">JPG or PNG, up to 2&nbsp;MB. Leave empty to keep the current image.</p>
+                    </div>
+                </section>
+
+                <div class="ue-actions">
+                    <a href="{{ path('app_product_show', {'id': product.id}) }}" class="ue-btn ue-btn--ghost">Cancel</a>
+                    <button type="submit" class="ue-btn ue-btn--primary">Save changes</button>
+                </div>
+
+                {{ form_end(form) }}
+            </div>
+        </div>
+    </div>
+</main>
+
+<script type="application/json" id="product-name-category-map">{{ nameCategoryMap|default({})|json_encode|raw }}</script>
+<script>
+(function () {
+    document.addEventListener('DOMContentLoaded', function () {
+        var dataEl = document.getElementById('product-name-category-map');
+        var map = {};
+        if (dataEl && dataEl.textContent) {
+            try { map = JSON.parse(dataEl.textContent); } catch (e) { map = {}; }
+        }
+        var nameInput = document.querySelector('[data-product-name-input="1"]');
+        var catSelect = document.querySelector('[data-product-category-select="1"]');
+        if (!nameInput || !catSelect) return;
+
+        function syncCategory() {
+            var v = nameInput.value.trim();
+            if (!v || !Object.prototype.hasOwnProperty.call(map, v)) return;
+            var id = map[v];
+            if (id == null || id === '') return;
+            catSelect.value = String(id);
+        }
+
+        nameInput.addEventListener('input', syncCategory);
+        nameInput.addEventListener('change', syncCategory);
+    });
+})();
+</script>
+{% endblock %}

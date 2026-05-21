@@ -1,0 +1,609 @@
+{% extends 'layout/adventure_landing.html.twig' %}
+
+{% block title %}Grilled &amp; Bites Burger — Handcrafted burgers{% endblock %}
+
+{% block stylesheets %}
+<style>
+{% include 'customer/_shop_shared_styles.html.twig' %}
+
+  /* —— Grilled & Bites Burger dark hero —— */
+  .gb-hero-wrap {
+    position: relative;
+    background: #050505;
+    color: #fff;
+    overflow: hidden;
+    padding-bottom: 2.5rem;
+  }
+
+  /* Hero split */
+  .gb-hero-grid {
+    max-width: 1280px;
+    margin: 0 auto;
+    padding: 2.5rem 1.25rem 3.5rem;
+    display: grid;
+    gap: 2.5rem;
+    align-items: center;
+  }
+  @media (min-width: 960px) {
+    .gb-hero-grid {
+      grid-template-columns: 1fr 1.05fr;
+      gap: 3rem;
+      padding: 3rem 1.5rem 4rem;
+    }
+  }
+
+  .gb-hero-title-stack {
+    font-family: 'Cinzel', serif;
+    font-weight: 900;
+    line-height: 0.95;
+    margin: 0 0 1.5rem;
+    text-transform: uppercase;
+    letter-spacing: 0.02em;
+  }
+  .gb-hero-line1 {
+    display: block;
+    font-size: clamp(2.5rem, 7vw, 4.25rem);
+    color: #ffb703;
+    text-shadow: 0 4px 40px rgba(255, 183, 3, 0.25);
+  }
+  .gb-hero-line2 {
+    display: block;
+    font-size: clamp(1.65rem, 4.5vw, 2.85rem);
+    color: #c41e3a;
+    margin-top: 0.15em;
+    text-shadow: 0 4px 36px rgba(196, 30, 58, 0.2);
+  }
+
+  .gb-hero-copy {
+    font-family: 'Montserrat', sans-serif;
+    font-size: clamp(0.65rem, 1.35vw, 0.72rem);
+    font-weight: 600;
+    line-height: 1.85;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.88);
+    max-width: 36rem;
+    margin: 0 0 1.75rem;
+  }
+
+  .gb-hero-actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+    align-items: center;
+    margin-bottom: 2rem;
+  }
+  .gb-btn-primary {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 700;
+    font-size: 0.75rem;
+    letter-spacing: 0.16em;
+    text-transform: uppercase;
+    padding: 1rem 1.75rem;
+    border: none;
+    border-radius: 4px;
+    background: linear-gradient(135deg, #ffb703, #f5a000);
+    color: #0a0a0a;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    transition: transform 0.15s, filter 0.15s;
+  }
+  .gb-btn-primary:hover {
+    filter: brightness(1.06);
+    transform: translateY(-2px);
+    color: #0a0a0a;
+  }
+  .gb-btn-ghost {
+    font-family: 'Montserrat', sans-serif;
+    font-weight: 600;
+    font-size: 0.72rem;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    padding: 1rem 1.5rem;
+    border-radius: 4px;
+    border: 2px solid rgba(255, 255, 255, 0.35);
+    background: transparent;
+    color: #fff;
+    cursor: pointer;
+    text-decoration: none;
+    display: inline-flex;
+    align-items: center;
+    transition: border-color 0.2s, color 0.2s;
+  }
+  .gb-btn-ghost:hover {
+    border-color: #f5c518;
+    color: #f5c518;
+  }
+
+  .gb-hero-visual {
+    position: relative;
+    border-radius: 12px;
+    overflow: hidden;
+    box-shadow:
+      0 40px 80px -20px rgba(0, 0, 0, 0.85),
+      0 0 0 1px rgba(255, 255, 255, 0.06);
+  }
+  .gb-hero-visual::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(ellipse at 30% 20%, rgba(255, 183, 3, 0.08), transparent 55%),
+                radial-gradient(ellipse at 80% 80%, rgba(196, 30, 58, 0.1), transparent 50%);
+    pointer-events: none;
+  }
+  .gb-hero-visual img {
+    width: 100%;
+    height: auto;
+    min-height: 280px;
+    object-fit: cover;
+    display: block;
+    vertical-align: middle;
+  }
+
+  /* Sections */
+  .adv-section { padding: 5rem 1.5rem; }
+  .adv-section-alt { background: #f8f9fa; }
+  .adv-container { max-width: 1200px; margin: 0 auto; }
+
+  .adv-section-head {
+    text-align: center;
+    margin-bottom: 3rem;
+  }
+  .adv-section-head h2 {
+    font-family: 'Abril Fatface', cursive;
+    font-size: clamp(1.75rem, 3vw, 2.25rem);
+    color: var(--adv-heading);
+    font-weight: 400;
+    margin: 0 0 0.5rem;
+  }
+  .adv-section-head p {
+    max-width: 700px;
+    margin: 0 auto;
+    color: var(--adv-text);
+  }
+
+  /* Destination / product cards */
+  .adv-card-grid {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 1.5rem;
+  }
+  @media (min-width: 576px) {
+    .adv-card-grid { grid-template-columns: repeat(2, 1fr); }
+  }
+  @media (min-width: 992px) {
+    .adv-card-grid.cols-4 { grid-template-columns: repeat(4, 1fr); }
+    .adv-card-grid.cols-5 { grid-template-columns: repeat(5, 1fr); }
+  }
+
+  .adv-dest-card {
+    background: var(--adv-white);
+    border-radius: var(--adv-radius);
+    overflow: hidden;
+    box-shadow: var(--adv-shadow);
+    transition: transform 0.2s;
+  }
+  .adv-dest-card:hover { transform: translateY(-4px); }
+  .adv-dest-img {
+    height: 200px;
+    background: #e8f5f2 center/cover;
+    position: relative;
+  }
+  .adv-dest-img img { width: 100%; height: 100%; object-fit: cover; }
+  .adv-dest-body { padding: 1.25rem; }
+  .adv-dest-body h3 { margin: 0 0 0.5rem; font-size: 1.1rem; color: var(--adv-heading); font-weight: 500; }
+  .adv-rating { color: var(--adv-primary); font-weight: 600; font-size: 0.9rem; margin-bottom: 0.35rem; }
+  .adv-price { font-size: 1.25rem; font-weight: 600; color: var(--adv-tertiary); }
+  .adv-meta { font-size: 0.85rem; color: #999; margin: 0.5rem 0 1rem; line-height: 1.5; }
+  .adv-meta-clamp {
+    display: -webkit-box;
+    -webkit-line-clamp: 4;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+  .adv-loc { font-size: 0.8rem; color: var(--adv-secondary); margin-bottom: 0.75rem; }
+  .adv-btn-outline {
+    display: inline-block;
+    padding: 0.5rem 1.25rem;
+    border: 2px solid var(--adv-tertiary);
+    color: var(--adv-tertiary);
+    text-decoration: none;
+    font-size: 13px;
+    font-weight: 600;
+    border-radius: var(--adv-radius);
+    background: transparent;
+    cursor: pointer;
+    font-family: inherit;
+  }
+  .adv-btn-outline:hover { background: var(--adv-tertiary); color: var(--adv-white); }
+  .adv-btn-outline:disabled { opacity: 0.5; cursor: not-allowed; }
+
+  /* Best sellers — pro card grid (Grilled & Bites) */
+  .gb-best-seller {
+    position: relative;
+    padding: clamp(3.25rem, 8vw, 5.5rem) clamp(1.15rem, 4vw, 1.75rem);
+    scroll-margin-top: 5.5rem;
+    overflow: hidden;
+  }
+
+  .gb-best-seller__bg {
+    position: absolute;
+    inset: 0;
+    background:
+      radial-gradient(ellipse 80% 50% at 50% 0%, rgba(245, 197, 24, 0.12), transparent 55%),
+      linear-gradient(180deg, #fafafa 0%, #f3f4f6 50%, #f8f9fa 100%);
+    z-index: 0;
+  }
+
+  .gb-best-seller__container {
+    position: relative;
+    z-index: 1;
+    max-width: 1220px;
+  }
+
+  .gb-best-seller__head {
+    text-align: center;
+    margin-bottom: clamp(2rem, 4vw, 2.75rem);
+    max-width: 36rem;
+    margin-left: auto;
+    margin-right: auto;
+  }
+
+  .gb-best-seller__eyebrow {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.68rem;
+    font-weight: 700;
+    letter-spacing: 0.22em;
+    text-transform: uppercase;
+    color: #c41e3a;
+    margin: 0 0 0.5rem;
+  }
+
+  .gb-best-seller__title {
+    font-family: 'Cinzel', serif;
+    font-size: clamp(1.85rem, 3.8vw, 2.45rem);
+    font-weight: 800;
+    color: #0f172a;
+    margin: 0 0 0.6rem;
+    line-height: 1.12;
+    letter-spacing: 0.03em;
+  }
+
+  .gb-best-seller__sub {
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.92rem;
+    color: #64748b;
+    margin: 0;
+    line-height: 1.55;
+    font-weight: 500;
+  }
+
+  .gb-best-seller__grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(260px, 1fr));
+    gap: clamp(1.25rem, 3vw, 1.75rem);
+    align-items: stretch;
+  }
+
+  #best-seller .gb-bs-card {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
+    border-radius: 18px;
+    border: 1px solid rgba(15, 23, 42, 0.07);
+    background: #fff;
+    box-shadow:
+      0 1px 2px rgba(15, 23, 42, 0.04),
+      0 12px 32px rgba(15, 23, 42, 0.08);
+    overflow: hidden;
+    transition: transform 0.22s ease, box-shadow 0.22s ease, border-color 0.22s ease;
+  }
+
+  #best-seller .gb-bs-card:hover {
+    transform: translateY(-5px);
+    box-shadow:
+      0 4px 8px rgba(15, 23, 42, 0.06),
+      0 22px 48px rgba(15, 23, 42, 0.12);
+    border-color: rgba(234, 88, 12, 0.18);
+  }
+
+  #best-seller .adv-dest-img {
+    height: 176px;
+    flex-shrink: 0;
+    background: linear-gradient(145deg, #fff7ed, #ffedd5);
+    position: relative;
+  }
+
+  #best-seller .adv-dest-img::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: linear-gradient(to top, rgba(15, 23, 42, 0.35) 0%, transparent 45%);
+    opacity: 0.55;
+    pointer-events: none;
+  }
+
+  #best-seller .adv-dest-img img {
+    object-fit: cover;
+    object-position: center;
+    position: relative;
+    z-index: 0;
+  }
+
+  #best-seller .adv-dest-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding: 1.15rem 1.2rem 1.2rem;
+    min-height: 0;
+  }
+
+  #best-seller .adv-dest-toprow {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    gap: 0.75rem;
+    margin-bottom: 0.5rem;
+  }
+
+  #best-seller .adv-dest-title {
+    margin: 0;
+    flex: 1;
+    min-width: 0;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1.08rem;
+    font-weight: 800;
+    color: #0f172a;
+    line-height: 1.25;
+    text-transform: capitalize;
+    letter-spacing: -0.02em;
+  }
+
+  #best-seller .adv-dest-toprow .adv-price {
+    margin: 0;
+    flex-shrink: 0;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 1.2rem;
+    font-weight: 800;
+    white-space: nowrap;
+    line-height: 1.2;
+    background: linear-gradient(135deg, #ea580c, #c2410c);
+    -webkit-background-clip: text;
+    background-clip: text;
+    color: transparent;
+  }
+
+  #best-seller .adv-dest-rating-row {
+    display: flex;
+    align-items: center;
+    margin-bottom: 0.65rem;
+  }
+
+  #best-seller .adv-dest-rating-row .adv-rating {
+    margin: 0;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #b45309;
+    background: linear-gradient(180deg, #fffbeb, #fef3c7);
+    padding: 0.28rem 0.55rem;
+    border-radius: 999px;
+    border: 1px solid rgba(245, 158, 11, 0.35);
+    letter-spacing: 0.02em;
+  }
+
+  #best-seller .gb-bs-desc-placeholder {
+    color: #94a3b8;
+    font-style: italic;
+  }
+
+  #best-seller .adv-dest-desc {
+    margin: 0;
+    flex: 1 1 auto;
+    min-height: 3.75rem;
+    max-height: 3.75rem;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.8rem;
+    line-height: 1.5;
+    color: #64748b;
+    display: -webkit-box;
+    -webkit-line-clamp: 3;
+    -webkit-box-orient: vertical;
+    overflow: hidden;
+  }
+
+  #best-seller .adv-dest-footer {
+    margin-top: auto;
+    padding-top: 0.9rem;
+    border-top: 1px solid rgba(15, 23, 42, 0.07);
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+  }
+
+  #best-seller .adv-dest-footer .adv-loc {
+    margin: 0;
+    font-size: 0.65rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: #c41e3a;
+  }
+
+  #best-seller .gb-bs-btn {
+    width: 100%;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 44px;
+    padding: 0.55rem 1rem;
+    border: none;
+    border-radius: 11px;
+    font-family: 'Montserrat', sans-serif;
+    font-size: 0.72rem;
+    font-weight: 800;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    cursor: pointer;
+    text-decoration: none;
+    transition: filter 0.18s ease, transform 0.18s ease, box-shadow 0.18s ease;
+    background: linear-gradient(145deg, #ffb347, #f59e0b 40%, #ea580c);
+    color: #1a1208;
+    box-shadow: 0 4px 14px rgba(234, 88, 12, 0.3);
+  }
+
+  #best-seller .gb-bs-btn:hover:not(:disabled) {
+    filter: brightness(1.05);
+    transform: translateY(-1px);
+    box-shadow: 0 8px 22px rgba(234, 88, 12, 0.35);
+  }
+
+  #best-seller .gb-bs-btn:disabled {
+    opacity: 0.5;
+    cursor: not-allowed;
+    transform: none;
+    filter: grayscale(0.2);
+  }
+
+  #best-seller form {
+    margin: 0;
+    width: 100%;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    #best-seller .gb-bs-card:hover {
+      transform: none;
+    }
+    #best-seller .gb-bs-btn:hover:not(:disabled) {
+      transform: none;
+    }
+  }
+
+  /* Section anchors (floating cart styles are in shared partial) */
+  #our-menu { scroll-margin-top: 5.5rem; }
+  #about { scroll-margin-top: 5.5rem; }
+</style>
+{% endblock %}
+
+{% block body %}
+{% set hero_img = asset('uploads/images/double-cheese-burger-69bc46d125017.jpg') %}
+<div class="adv-page" x-data="{ mobileOpen: false }">
+  <header class="gb-hero-wrap" id="home">
+    {% include 'customer/_shop_nav_bars.html.twig' with { on_menu_page: false, cartProducts: cartProducts } %}
+
+    <div class="gb-hero-grid">
+      <div>
+        <h1 class="gb-hero-title-stack">
+          <span class="gb-hero-line1">Grilled</span>
+          <span class="gb-hero-line2">&amp; Bites Burger</span>
+        </h1>
+        <p class="gb-hero-copy">
+          Grilled &amp; Bites Burger serves handcrafted burgers made with fresh ingredients and bold, smoky flavors. Every bite is packed with juicy goodness, from our signature grilled patties to our irresistible sides. If you’re craving the perfect burger experience, Grilled &amp; Bites Burger is where flavor meets satisfaction.
+        </p>
+        <div class="gb-hero-actions">
+          <a href="{{ path('customer_menu') }}" class="gb-btn-primary">Order now</a>
+          {% if cartProducts|length > 0 %}
+            <a href="{{ path('customer_checkout') }}" class="gb-btn-ghost">Checkout ({{ cartProducts|length }})</a>
+          {% else %}
+            <a href="{{ path('customer_menu') }}" class="gb-btn-ghost">View menu</a>
+          {% endif %}
+        </div>
+      </div>
+      <div class="gb-hero-visual">
+        <img src="{{ hero_img }}" width="900" height="700" alt="Signature burger and sides at Grilled &amp; Bites Burger" loading="eager" onerror="this.onerror=null;this.src='https://images.unsplash.com/photo-1568901346375-23c9450c58cd?auto=format&amp;fit=crop&amp;w=1200&amp;q=80';">
+      </div>
+    </div>
+  </header>
+
+  {% include 'customer/_our_menu_section.html.twig' with {
+    products: products,
+    menu_categories: menu_categories,
+    has_uncategorized_product: has_uncategorized_product,
+    cartProductIds: cartProductIds,
+    cart_return: '',
+    page_mode: false
+  } %}
+
+  <section class="gb-best-seller" id="best-seller">
+    <div class="gb-best-seller__bg" aria-hidden="true"></div>
+    <div class="adv-container gb-best-seller__container">
+      <header class="gb-best-seller__head">
+        <p class="gb-best-seller__eyebrow">Crowd favorites</p>
+        <h2 class="gb-best-seller__title">Best sellers</h2>
+        <p class="gb-best-seller__sub">Customer favorites—crafted fresh, priced fair.</p>
+      </header>
+      <div class="gb-best-seller__grid">
+        {% for product in destination_products %}
+          <article class="adv-dest-card gb-bs-card">
+            <div class="adv-dest-img">
+              {% if product.image %}
+                <img src="{{ asset('uploads/images/' ~ product.image) }}" alt="{{ product.name }}">
+              {% endif %}
+            </div>
+            <div class="adv-dest-body">
+              <div class="adv-dest-toprow">
+                <h3 class="adv-dest-title">{{ product.name }}</h3>
+                <span class="adv-price">₱{{ product.price }}</span>
+              </div>
+              <div class="adv-dest-rating-row">
+                <span class="adv-rating">★ 8 Rating</span>
+              </div>
+              <p class="adv-dest-desc">{% if product.description %}{{ product.description }}{% else %}<span class="gb-bs-desc-placeholder">No description yet.</span>{% endif %}</p>
+              <div class="adv-dest-footer">
+                <div class="adv-loc">{{ product.category ? product.category.name : 'Grilled &amp; Bites Burger' }}</div>
+                {% if cartProductIds[product.id] is defined %}
+                  <button type="button" class="gb-bs-btn" disabled>In cart</button>
+                {% else %}
+                  <form method="post" action="{{ path('customer_cart_add', {id: product.id}) }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('cart_add_' ~ product.id) }}">
+                    <button type="submit" class="gb-bs-btn">Add to cart</button>
+                  </form>
+                {% endif %}
+              </div>
+            </div>
+          </article>
+        {% else %}
+          {% for i in 1..4 %}
+            <article class="adv-dest-card gb-bs-card">
+              <div class="adv-dest-img" style="background:linear-gradient(135deg,#fbbf24,#ea580c);"></div>
+              <div class="adv-dest-body">
+                <div class="adv-dest-toprow">
+                  <h3 class="adv-dest-title">Coming soon</h3>
+                  <span class="adv-price">—</span>
+                </div>
+                <div class="adv-dest-rating-row">
+                  <span class="adv-rating">★ —</span>
+                </div>
+                <p class="adv-dest-desc">Add products in the admin panel to showcase them in Best Seller.</p>
+                <div class="adv-dest-footer">
+                  <div class="adv-loc">Grilled &amp; Bites Burger</div>
+                  <button type="button" class="gb-bs-btn" disabled>Add to cart</button>
+                </div>
+              </div>
+            </article>
+          {% endfor %}
+        {% endfor %}
+      </div>
+    </div>
+  </section>
+
+  {% include 'customer/_about_section.html.twig' with { hero_img: hero_img, page_mode: false } %}
+
+  {% include 'customer/_map_section.html.twig' %}
+
+  {% include 'customer/_contact_footer.html.twig' %}
+
+  {% if cartProducts|length > 0 %}
+    <a href="{{ path('customer_checkout') }}" class="adv-cart-fab" aria-label="Checkout">
+      🛒
+      <span>{{ cartProducts|length }}</span>
+    </a>
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+{% endblock %}

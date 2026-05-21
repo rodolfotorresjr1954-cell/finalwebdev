@@ -1,0 +1,65 @@
+{# Expects: products, menu_categories, has_uncategorized_product, cartProductIds, cart_return ('menu' or ''), page_mode (bool) adds om-section--page #}
+<section class="om-section{% if page_mode|default(false) %} om-section--page{% endif %}" id="our-menu" aria-labelledby="om-menu-title" x-data="{ catFilter: 'all' }">
+  <div class="om-inner">
+    <h2 class="om-title" id="om-menu-title">Our Menu</h2>
+
+    <div class="om-filters" role="tablist" aria-label="Menu categories">
+      <button type="button" class="om-filter" :class="{ 'is-active': catFilter === 'all' }" @click="catFilter = 'all'">All</button>
+      {% for category in menu_categories %}
+        <button type="button" class="om-filter" :class="{ 'is-active': catFilter === '{{ category.id }}' }" @click="catFilter = '{{ category.id }}'">{{ category.name }}</button>
+      {% endfor %}
+      {% if has_uncategorized_product %}
+        <button type="button" class="om-filter" :class="{ 'is-active': catFilter === 'none' }" @click="catFilter = 'none'">Other</button>
+      {% endif %}
+    </div>
+
+    {% if products|length > 0 %}
+      <div class="om-grid">
+        {% for product in products %}
+          <article
+            class="om-card"
+            data-om-cat="{{ product.category ? product.category.id : 'none' }}"
+            x-show="catFilter === 'all' || catFilter === $el.dataset.omCat"
+            x-transition.opacity.duration.200ms
+          >
+            <div class="om-card-img-wrap">
+              {% if product.image %}
+                <img class="om-card-img" src="{{ asset('uploads/images/' ~ product.image) }}" alt="{{ product.name }}">
+              {% else %}
+                <div class="om-card-img om-card-img--placeholder" aria-hidden="true">No image</div>
+              {% endif %}
+            </div>
+            <div class="om-card-body">
+              <h3 class="om-card-name">{{ product.name }}</h3>
+              <p class="om-card-desc">
+                {{ product.description is not null and product.description|length > 140 ? product.description|slice(0, 140) ~ '…' : (product.description ?? 'Fresh from our kitchen — add to your cart to order.') }}
+              </p>
+              <div class="om-card-row">
+                <span class="om-card-price">₱{{ product.price }}</span>
+                {% if cartProductIds[product.id] is defined %}
+                  <button type="button" class="om-cart-btn" disabled aria-label="Already in cart">✓</button>
+                {% else %}
+                  <form method="post" action="{{ path('customer_cart_add', {id: product.id}) }}">
+                    <input type="hidden" name="_token" value="{{ csrf_token('cart_add_' ~ product.id) }}">
+                    {% if cart_return|default('') %}
+                      <input type="hidden" name="_cart_return" value="{{ cart_return }}">
+                    {% endif %}
+                    <button type="submit" class="om-cart-btn" aria-label="Add {{ product.name|e('html_attr') }} to cart">
+                      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                        <circle cx="9" cy="21" r="1"></circle>
+                        <circle cx="20" cy="21" r="1"></circle>
+                        <path d="M1 1h4l2.68 13.39a2 2 0 0 0 2 1.61h9.72a2 2 0 0 0 2-1.61L23 6H6"></path>
+                      </svg>
+                    </button>
+                  </form>
+                {% endif %}
+              </div>
+            </div>
+          </article>
+        {% endfor %}
+      </div>
+    {% else %}
+      <p class="om-empty">No menu items yet. Check back soon.</p>
+    {% endif %}
+  </div>
+</section>

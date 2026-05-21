@@ -1,0 +1,74 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}{{ product.name }}{% endblock %}
+
+{% block body %}
+{% block header_search %}{% endblock %}
+
+<main class="ue-page">
+    <div class="ue-shell">
+        <a href="{{ path('app_product_index') }}" class="ue-back">← Back to products</a>
+
+        <div class="ue-card">
+            <header class="ue-card__head">
+                <p class="ue-card__eyebrow">Catalog · #{{ product.id }}</p>
+                <h1 class="ue-card__title">{{ product.name }}</h1>
+                <p class="pd-hero-price">₱{{ product.price|number_format(2) }}</p>
+                <div class="pd-meta">
+                    {% if product.category %}
+                        {% set cat = product.category.name|lower %}
+                        <span class="pd-badge pd-badge--{{ cat in ['burger', 'fries', 'milktea'] ? cat : 'muted' }}">{{ product.category.name }}</span>
+                    {% else %}
+                        <span class="pd-badge pd-badge--muted">Uncategorized</span>
+                    {% endif %}
+                    <span class="pd-badge pd-badge--stock">{{ product.stock }} in stock</span>
+                </div>
+            </header>
+
+            <div class="ue-card__body">
+                <div class="pd-layout pd-layout--show">
+                    <div class="pd-media">
+                        {% if product.image %}
+                            <img src="{{ asset('uploads/images/' ~ product.image) }}" alt="{{ product.name|e('html_attr') }}">
+                        {% else %}
+                            <div class="pd-media__placeholder">
+                                <span aria-hidden="true">🍔</span>
+                                <span>No image</span>
+                            </div>
+                        {% endif %}
+                    </div>
+
+                    <div>
+                        <dl class="pd-details">
+                            <div class="pd-detail">
+                                <dt class="pd-detail__label">Description</dt>
+                                <dd class="pd-detail__value">{{ product.description|default('—')|nl2br }}</dd>
+                            </div>
+                            {% if product.datetime %}
+                            <div class="pd-detail">
+                                <dt class="pd-detail__label">Added</dt>
+                                <dd class="pd-detail__value">{{ product.datetime|date('M j, Y · g:i A') }}</dd>
+                            </div>
+                            {% endif %}
+                            {% if product.createdBy %}
+                            <div class="pd-detail">
+                                <dt class="pd-detail__label">Created by</dt>
+                                <dd class="pd-detail__value">{{ product.createdBy.username }}</dd>
+                            </div>
+                            {% endif %}
+                        </dl>
+
+                        <div class="pd-toolbar">
+                            <a href="{{ path('app_product_index') }}" class="ue-btn ue-btn--ghost">Back</a>
+                            {% if is_granted('ROLE_ADMIN') or (app.user and product.createdBy and product.createdBy.id == app.user.id) %}
+                                <a href="{{ path('app_product_edit', {'id': product.id}) }}" class="ue-btn ue-btn--primary">Edit product</a>
+                                {{ include('product/_delete_form.html.twig') }}
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock %}

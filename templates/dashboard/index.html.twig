@@ -1,0 +1,257 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Dashboard{% endblock %}
+
+{% block body %}
+        <main class="dash-main-inner" style="flex: 1; overflow: hidden; display: flex; flex-direction: column;">
+          <div class="container px-4 mx-auto py-4 dash-shell" style="flex: 1; display: flex; flex-direction: column; overflow: hidden;">
+            <!-- Admin Statistics Cards -->
+            {% if is_granted('ROLE_ADMIN') %}
+            <section class="dash-section" aria-labelledby="dash-admin-heading">
+              <h2 id="dash-admin-heading" class="dash-section__label">Administration</h2>
+              <div class="dash-stat-grid">
+              <a href="{{ path('admin_user_index') }}" class="card-stat">
+                <div class="card-stat-icon" style="background: linear-gradient(135deg, #7C3AED 0%, #5B21B6 100%);">
+                  <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 4.354a4 4 0 110 5.292M15 21H3v-1a6 6 0 0112 0v1zm0 0h6v-1a6 6 0 00-9-5.197M13 7a4 4 0 11-8 0 4 4 0 018 0z"></path>
+                  </svg>
+                </div>
+                <div class="card-stat-content">
+                  <h3>Total users</h3>
+                  <p>{{ totalUsers }}</p>
+                </div>
+              </a>
+              <a href="{{ path('admin_user_index') }}?role=ROLE_STAFF" class="card-stat">
+                <div class="card-stat-icon" style="background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);">
+                  <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"></path>
+                  </svg>
+                </div>
+                <div class="card-stat-content">
+                  <h3>Staff</h3>
+                  <p>{{ totalStaff }}</p>
+                </div>
+              </a>
+              <div class="card-stat">
+                <div class="card-stat-icon" style="background: linear-gradient(135deg, #14B8A6 0%, #0D9488 100%);">
+                  <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 12h6m-6 4h6m2 5H7a2 2 0 01-2-2V5a2 2 0 012-2h5.586a1 1 0 01.707.293l5.414 5.414a1 1 0 01.293.707V19a2 2 0 01-2 2z"></path>
+                  </svg>
+                </div>
+                <div class="card-stat-content">
+                  <h3>Total records</h3>
+                  <p>{{ totalRecords }}</p>
+                </div>
+              </div>
+              <a href="{{ path('admin_activity_log_index') }}" class="card-stat">
+                <div class="card-stat-icon" style="background: linear-gradient(135deg, #FF6B35 0%, #E85A2B 100%);">
+                  <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"></path>
+                  </svg>
+                </div>
+                <div class="card-stat-content">
+                  <h3>Recent activities</h3>
+                  <p>{{ recentActivities|length }}</p>
+                </div>
+              </a>
+              </div>
+            </section>
+            {% endif %}
+
+            <section class="dash-section" aria-labelledby="dash-store-heading">
+              <h2 id="dash-store-heading" class="dash-section__label">Store performance</h2>
+              <div class="dash-stat-grid" style="flex-shrink: 0;">
+              <a href="{{ path('app_customer_index') }}" class="card-stat">
+                <div class="card-stat-icon" style="background: linear-gradient(135deg, #FF6B35 0%, #E85A2B 100%);">
+                  <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M13 6a3 3 0 11-6 0 3 3 0 016 0zM18 8a2 2 0 11-4 0 2 2 0 014 0zM14 15a4 4 0 00-8 0v3h8v-3zM6 8a2 2 0 11-4 0 2 2 0 014 0zM16 18v-3a5.972 5.972 0 00-.75-2.906A3.005 3.005 0 0119 15v3h-3zM4.75 12.094A5.973 5.973 0 004 15v3H1v-3a3 3 0 013.75-2.906z"></path>
+                  </svg>
+                </div>
+                <div class="card-stat-content">
+                  <h3>Customers</h3>
+                  <p>{{ customerCount }}</p>
+                </div>
+              </a>
+              <a href="{{ path('app_order_index') }}" class="card-stat card-stat--kpi">
+                <div class="card-stat-icon" style="background: linear-gradient(135deg, #10B981 0%, #059669 100%);">
+                  <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M4 4a2 2 0 00-2 2v4a2 2 0 002 2V6h10a2 2 0 00-2-2H4zm2 6a2 2 0 012-2h8a2 2 0 012 2v4a2 2 0 01-2 2H8a2 2 0 01-2-2v-4zm6 4a2 2 0 100-4 2 2 0 000 4z" clip-rule="evenodd"></path>
+                  </svg>
+                </div>
+                <div class="card-stat-content">
+                  <h3>Total sales</h3>
+                  <p>₱{{ totalSales|number_format(2, '.', ',') }}</p>
+                </div>
+              </a>
+              <a href="{{ path('app_order_index') }}" class="card-stat">
+                <div class="card-stat-icon" style="background: linear-gradient(135deg, #3B82F6 0%, #2563EB 100%);">
+                  <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path d="M3 1a1 1 0 000 2h1.22l.305 1.222a.997.997 0 00.01.042l1.358 5.43-.893.892C3.74 11.846 4.632 14 6.414 14H15a1 1 0 000-2H6.414l1-1H14a1 1 0 00.894-.553l3-6A1 1 0 0017 3H6.28l-.31-1.243A1 1 0 005 1H3zM16 16.5a1.5 1.5 0 11-3 0 1.5 1.5 0 013 0zM6.5 18a1.5 1.5 0 100-3 1.5 1.5 0 000 3z"></path>
+                  </svg>
+                </div>
+                <div class="card-stat-content">
+                  <h3>Orders</h3>
+                  <p>{{ orderCount }}</p>
+                </div>
+              </a>
+              <a href="{{ path('app_product_index') }}" class="card-stat">
+                <div class="card-stat-icon" style="background: linear-gradient(135deg, #14B8A6 0%, #0D9488 100%);">
+                  <svg class="w-6 h-6 text-white" fill="currentColor" viewBox="0 0 20 20">
+                    <path fill-rule="evenodd" d="M18 5v8a2 2 0 01-2 2h-5l-5 4v-4H4a2 2 0 01-2-2V5a2 2 0 012-2h12a2 2 0 012 2zM7 8H5v2h2V8zm2 0h2v2H9V8zm6 0h-2v2h2V8z" clip-rule="evenodd"></path>
+                  </svg>
+                </div>
+                <div class="card-stat-content">
+                  <h3>Products</h3>
+                  <p>{{ productCount }}</p>
+                </div>
+              </a>
+              </div>
+            </section>
+
+            <section class="dash-table-panel" style="flex: 1; display: flex; flex-direction: column; overflow: hidden; min-height: 0;" aria-labelledby="dash-orders-heading">
+              <div class="dash-table-panel__head">
+                <div>
+                  <h2 id="dash-orders-heading">Recent orders</h2>
+                  <p>Newest transactions across your store</p>
+                </div>
+                <a href="{{ path('app_order_index') }}" class="dash-table-panel__link">View all orders →</a>
+              </div>
+              <div class="dash-table-scroll w-full">
+                <table class="dash-table whitespace-no-wrap" id="ordersTable">
+                  <thead>
+                    <tr>
+                      <th scope="col">
+                        {% set sk = 'name' %}
+                        {% set nd = sort == sk ? (dir == 'asc' ? 'desc' : 'asc') : 'asc' %}
+                        <a href="{{ path('app_dashboard', {q: q, sort: sk, dir: nd, page: 1}) }}" class="dash-table-sort-link{% if sort == sk %} is-active is-{{ dir }}{% endif %}">
+                          <span class="dash-th-label">Order</span>
+                          <span class="dash-table-sort-icons" aria-hidden="true"><span class="dash-table-sort-up">▲</span><span class="dash-table-sort-down">▼</span></span>
+                        </a>
+                      </th>
+                      <th scope="col">
+                        {% set sk = 'customer' %}
+                        {% set nd = sort == sk ? (dir == 'asc' ? 'desc' : 'asc') : 'asc' %}
+                        <a href="{{ path('app_dashboard', {q: q, sort: sk, dir: nd, page: 1}) }}" class="dash-table-sort-link{% if sort == sk %} is-active is-{{ dir }}{% endif %}">
+                          <span class="dash-th-label">Customer</span>
+                          <span class="dash-table-sort-icons" aria-hidden="true"><span class="dash-table-sort-up">▲</span><span class="dash-table-sort-down">▼</span></span>
+                        </a>
+                      </th>
+                      <th scope="col">
+                        <span class="dash-table-sort-static">
+                          <span class="dash-th-label">Products</span>
+                          <span class="dash-table-sort-icons dash-table-sort-icons--muted" aria-hidden="true"><span class="dash-table-sort-up">▲</span><span class="dash-table-sort-down">▼</span></span>
+                        </span>
+                      </th>
+                      <th scope="col">
+                        {% set sk = 'amount' %}
+                        {% set nd = sort == sk ? (dir == 'asc' ? 'desc' : 'asc') : 'desc' %}
+                        <a href="{{ path('app_dashboard', {q: q, sort: sk, dir: nd, page: 1}) }}" class="dash-table-sort-link{% if sort == sk %} is-active is-{{ dir }}{% endif %}">
+                          <span class="dash-th-label">Amount</span>
+                          <span class="dash-table-sort-icons" aria-hidden="true"><span class="dash-table-sort-up">▲</span><span class="dash-table-sort-down">▼</span></span>
+                        </a>
+                      </th>
+                      <th scope="col">
+                        {% set sk = 'status' %}
+                        {% set nd = sort == sk ? (dir == 'asc' ? 'desc' : 'asc') : 'asc' %}
+                        <a href="{{ path('app_dashboard', {q: q, sort: sk, dir: nd, page: 1}) }}" class="dash-table-sort-link{% if sort == sk %} is-active is-{{ dir }}{% endif %}">
+                          <span class="dash-th-label">Status</span>
+                          <span class="dash-table-sort-icons" aria-hidden="true"><span class="dash-table-sort-up">▲</span><span class="dash-table-sort-down">▼</span></span>
+                        </a>
+                      </th>
+                      <th scope="col">
+                        {% set sk = 'date' %}
+                        {% set nd = sort == sk ? (dir == 'asc' ? 'desc' : 'asc') : 'desc' %}
+                        <a href="{{ path('app_dashboard', {q: q, sort: sk, dir: nd, page: 1}) }}" class="dash-table-sort-link{% if sort == sk %} is-active is-{{ dir }}{% endif %}">
+                          <span class="dash-th-label">Date</span>
+                          <span class="dash-table-sort-icons" aria-hidden="true"><span class="dash-table-sort-up">▲</span><span class="dash-table-sort-down">▼</span></span>
+                        </a>
+                      </th>
+                    </tr>
+                  </thead>
+                  <tbody>
+                    {% for order in recentOrders %}
+                    <tr>
+                      <td>
+                        <div>
+                          <a href="{{ path('app_order_show', {id: order.id}) }}" class="dash-order-link">{{ order.Name }}</a>
+                          <p class="dash-order-sub">#{{ order.id }}</p>
+                        </div>
+                      </td>
+                      <td>
+                        {{ order.Customer ? order.Customer.Name : '—' }}
+                      </td>
+                      <td>
+                        {% if order.products|length > 0 %}
+                          {% for p in order.products|slice(0, 2) %}{% if not loop.first %}, {% endif %}{{ p.Name }}{% endfor %}{% if order.products|length > 2 %}…{% endif %}
+                        {% else %}—{% endif %}
+                      </td>
+                      <td class="dash-amt">
+                        ₱{{ order.Total|number_format(2, '.', ',') }}
+                      </td>
+                      <td>
+                        {% set status = order.Status|lower %}
+                        {% if status in ['approved', 'completed', 'complete', 'paid', 'delivered'] %}
+                          <span class="order-status order-status--success">{{ order.Status }}</span>
+                        {% elseif status == 'pending' %}
+                          <span class="order-status order-status--warning">{{ order.Status }}</span>
+                        {% elseif status in ['expired', 'cancelled', 'canceled'] %}
+                          <span class="order-status order-status--muted">{{ order.Status }}</span>
+                        {% else %}
+                          <span class="order-status order-status--danger">{{ order.Status }}</span>
+                        {% endif %}
+                      </td>
+                      <td>
+                        {{ order.createAt ? order.createAt|date('M j, Y') : '—' }}
+                      </td>
+                    </tr>
+                    {% else %}
+                    <tr>
+                      <td colspan="6" style="text-align: center; padding: 2.5rem 1rem; color: #64748b;">No recent orders yet.</td>
+                    </tr>
+                    {% endfor %}
+                  </tbody>
+                </table>
+              </div>
+              <footer class="dash-table-foot">
+                {% set start = totalOrders > 0 ? ((page - 1) * perPage + 1) : 0 %}
+                {% set end = (page * perPage) > totalOrders ? totalOrders : (page * perPage) %}
+                <span>Showing {{ start }}–{{ end }} of {{ totalOrders }}</span>
+                <nav aria-label="Orders pagination">
+                  <ul class="dash-page-nav">
+                    <li>
+                      {% if page > 1 %}
+                        <a href="{{ path('app_dashboard', {page: page - 1, q: app.request.get('q'), sort: app.request.get('sort'), dir: app.request.get('dir')}) }}" aria-label="Previous page">
+                          <svg aria-hidden="true" class="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" fill-rule="evenodd"></path></svg>
+                        </a>
+                      {% else %}
+                        <span class="opacity-50 cursor-not-allowed" aria-hidden="true">
+                          <svg class="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M12.707 5.293a1 1 0 010 1.414L9.414 10l3.293 3.293a1 1 0 01-1.414 1.414l-4-4a1 1 0 010-1.414l4-4a1 1 0 011.414 0z" clip-rule="evenodd" fill-rule="evenodd"></path></svg>
+                        </span>
+                      {% endif %}
+                    </li>
+                    {% for p in range(1, totalPages) %}
+                      <li>
+                        {% if p == page %}
+                          <span class="dash-page-nav__current" aria-current="page">{{ p }}</span>
+                        {% else %}
+                          <a href="{{ path('app_dashboard', {page: p, q: app.request.get('q'), sort: app.request.get('sort'), dir: app.request.get('dir')}) }}">{{ p }}</a>
+                        {% endif %}
+                      </li>
+                    {% endfor %}
+                    <li>
+                      {% if page < totalPages %}
+                        <a href="{{ path('app_dashboard', {page: page + 1, q: app.request.get('q'), sort: app.request.get('sort'), dir: app.request.get('dir')}) }}" aria-label="Next page">
+                          <svg class="w-4 h-4 fill-current" aria-hidden="true" viewBox="0 0 20 20"><path d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" fill-rule="evenodd"></path></svg>
+                        </a>
+                      {% else %}
+                        <span class="opacity-50 cursor-not-allowed" aria-hidden="true">
+                          <svg class="w-4 h-4 fill-current" viewBox="0 0 20 20"><path d="M7.293 14.707a1 1 0 010-1.414L10.586 10 7.293 6.707a1 1 0 011.414-1.414l4 4a1 1 0 010 1.414l-4 4a1 1 0 01-1.414 0z" clip-rule="evenodd" fill-rule="evenodd"></path></svg>
+                        </span>
+                      {% endif %}
+                    </li>
+                  </ul>
+                </nav>
+              </footer>
+            </section>
+          </div>
+{% endblock %}

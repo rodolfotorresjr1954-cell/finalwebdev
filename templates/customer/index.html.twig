@@ -1,0 +1,418 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}Customers — Grilled & Bites{% endblock %}
+
+{% block body %}
+{% block header_search %}{% endblock %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap" rel="stylesheet">
+
+<style>
+  /* Dashboard column: fill height, scroll inside table region */
+  .main-content > main.gb-cust-page {
+    flex: 1;
+    min-height: 0;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+    padding-bottom: 0.5rem;
+  }
+
+  .gb-cust-page {
+    --gc-bg: #eef1f6;
+    --gc-surface: #ffffff;
+    --gc-ink: #0f172a;
+    --gc-muted: #64748b;
+    --gc-accent: #ea580c;
+    --gc-accent-soft: rgba(234, 88, 12, 0.1);
+    --gc-border: #e2e8f0;
+    --gc-radius: 16px;
+    --gc-shadow: 0 1px 2px rgba(15, 23, 42, 0.04), 0 8px 28px rgba(15, 23, 42, 0.06);
+    --gc-font: 'Inter', system-ui, -apple-system, sans-serif;
+    font-family: var(--gc-font);
+    color: var(--gc-ink);
+    background-color: var(--gc-bg);
+    background-image:
+      radial-gradient(ellipse 100% 70% at 100% 0%, rgba(251, 146, 60, 0.07), transparent 52%),
+      radial-gradient(ellipse 70% 50% at 0% 100%, rgba(14, 165, 233, 0.04), transparent 45%);
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+  }
+
+  .gb-cust-page__shell {
+    flex: 1;
+    min-height: 0;
+    display: flex;
+    flex-direction: column;
+    max-width: 1320px;
+    margin: 0 auto;
+    width: 100%;
+    padding: 0 clamp(1rem, 3vw, 1.5rem);
+  }
+
+  .gb-cust-filters {
+    position: sticky;
+    top: 0;
+    z-index: 15;
+    background: rgba(255, 255, 255, 0.94);
+    backdrop-filter: blur(10px);
+    -webkit-backdrop-filter: blur(10px);
+    border-radius: var(--gc-radius);
+    border: 1px solid var(--gc-border);
+    box-shadow: var(--gc-shadow);
+    padding: 1.1rem 1.2rem;
+    margin-bottom: 1.25rem;
+    flex-shrink: 0;
+  }
+
+  .gb-cust-filters__form {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: flex-end;
+    gap: 0.85rem 1rem;
+  }
+
+  .gb-cust-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.4rem;
+    flex: 1 1 200px;
+    min-width: min(100%, 180px);
+  }
+
+  .gb-cust-field--search {
+    flex: 2 1 280px;
+    min-width: min(100%, 240px);
+  }
+
+  .gb-cust-field label {
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.07em;
+    text-transform: uppercase;
+    color: var(--gc-muted);
+  }
+
+  .gb-cust-field input[type="text"],
+  .gb-cust-field select {
+    width: 100%;
+    height: 44px;
+    padding: 0 0.9rem;
+    border: 1px solid var(--gc-border);
+    border-radius: 11px;
+    font-size: 0.875rem;
+    font-family: inherit;
+    color: var(--gc-ink);
+    background: #f8fafc;
+    transition: border-color 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+  }
+
+  .gb-cust-field select {
+    cursor: pointer;
+    appearance: none;
+    padding-right: 2.35rem;
+    background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' fill='none' viewBox='0 0 24 24' stroke='%2364748b'%3E%3Cpath stroke-linecap='round' stroke-linejoin='round' stroke-width='2' d='M19 9l-7 7-7-7'/%3E%3C/svg%3E");
+    background-repeat: no-repeat;
+    background-position: right 0.7rem center;
+    background-size: 1rem;
+  }
+
+  .gb-cust-field input:focus,
+  .gb-cust-field select:focus {
+    outline: none;
+    border-color: rgba(234, 88, 12, 0.45);
+    background: #fff;
+    box-shadow: 0 0 0 3px var(--gc-accent-soft);
+  }
+
+  .gb-cust-filters__actions {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+    margin-left: auto;
+    padding-top: 1.2rem;
+  }
+
+  @media (min-width: 640px) {
+    .gb-cust-filters__actions {
+      padding-top: 0;
+    }
+  }
+
+  .gb-cust-btn-filter {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    height: 44px;
+    padding: 0 1.15rem;
+    border: none;
+    border-radius: 11px;
+    font-size: 0.8125rem;
+    font-weight: 700;
+    font-family: inherit;
+    cursor: pointer;
+    color: #fff;
+    background: linear-gradient(135deg, #fb923c, #ea580c);
+    box-shadow: 0 2px 8px rgba(234, 88, 12, 0.22);
+    transition: filter 0.15s ease, transform 0.15s ease;
+  }
+
+  .gb-cust-btn-filter:hover {
+    filter: brightness(1.06);
+    transform: translateY(-1px);
+  }
+
+  .gb-cust-btn-ghost {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 44px;
+    padding: 0 1.1rem;
+    border-radius: 11px;
+    font-size: 0.8125rem;
+    font-weight: 600;
+    font-family: inherit;
+    text-decoration: none;
+    color: var(--gc-muted);
+    background: #f1f5f9;
+    border: 1px solid var(--gc-border);
+    transition: background 0.15s ease, color 0.15s ease;
+  }
+
+  .gb-cust-btn-ghost:hover {
+    background: #e2e8f0;
+    color: var(--gc-ink);
+  }
+
+  .gb-cust-scroll {
+    flex: 1;
+    min-height: 0;
+    overflow: auto;
+    -webkit-overflow-scrolling: touch;
+    border-radius: var(--gc-radius);
+    border: 1px solid var(--gc-border);
+    background: var(--gc-surface);
+    box-shadow: var(--gc-shadow);
+  }
+
+  .gb-cust-scroll::-webkit-scrollbar {
+    width: 10px;
+    height: 10px;
+  }
+
+  .gb-cust-scroll::-webkit-scrollbar-thumb {
+    background: rgba(15, 23, 42, 0.18);
+    border-radius: 999px;
+  }
+
+  .gb-cust-table-wrap {
+    min-width: 640px;
+  }
+
+  .gb-cust-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.875rem;
+  }
+
+  .gb-cust-table thead th {
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    background: #f8fafc;
+    padding: 0.85rem 1rem;
+    text-align: left;
+    font-weight: 700;
+    font-size: 0.6875rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: var(--gc-muted);
+    border-bottom: 1px solid var(--gc-border);
+    white-space: nowrap;
+  }
+
+  .gb-cust-table thead th:last-child {
+    text-align: right;
+  }
+
+  .gb-cust-table tbody td {
+    padding: 0.95rem 1rem;
+    border-bottom: 1px solid #f1f5f9;
+    color: var(--gc-ink);
+    vertical-align: middle;
+  }
+
+  .gb-cust-table tbody tr:hover td {
+    background: rgba(248, 250, 252, 0.85);
+  }
+
+  .gb-cust-table tbody tr:last-child td {
+    border-bottom: none;
+  }
+
+  .gb-cust-table .gc-id {
+    font-weight: 700;
+    color: var(--gc-muted);
+    font-variant-numeric: tabular-nums;
+    width: 4rem;
+  }
+
+  .gb-cust-table .gc-mono {
+    font-variant-numeric: tabular-nums;
+  }
+
+  .gb-cust-table .gc-empty {
+    color: #94a3b8;
+    font-style: italic;
+  }
+
+  .gb-cust-table tbody td.gc-actions {
+    text-align: right;
+    white-space: nowrap;
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.45rem;
+    justify-content: flex-end;
+    align-items: center;
+  }
+
+  .gb-cust-table .gc-email-link:hover {
+    text-decoration: underline;
+  }
+
+  .gb-cust-link {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    min-height: 36px;
+    padding: 0 0.95rem;
+    border-radius: 10px;
+    font-size: 0.75rem;
+    font-weight: 700;
+    text-decoration: none;
+    transition: filter 0.15s ease, transform 0.15s ease;
+  }
+
+  .gb-cust-link--primary {
+    color: #fff;
+    background: linear-gradient(135deg, #fb923c, #ea580c);
+    box-shadow: 0 2px 6px rgba(234, 88, 12, 0.2);
+  }
+
+  .gb-cust-link--primary:hover {
+    filter: brightness(1.06);
+    transform: translateY(-1px);
+  }
+
+  .gb-cust-link--secondary {
+    color: var(--gc-ink);
+    background: #f1f5f9;
+    border: 1px solid var(--gc-border);
+  }
+
+  .gb-cust-link--secondary:hover {
+    background: #e2e8f0;
+  }
+
+  .gb-cust-link--outline {
+    color: #c2410c;
+    background: #fff;
+    border: 1px solid rgba(234, 88, 12, 0.38);
+    box-shadow: 0 1px 2px rgba(15, 23, 42, 0.04);
+  }
+
+  .gb-cust-link--outline:hover {
+    background: var(--gc-accent-soft);
+    border-color: rgba(234, 88, 12, 0.55);
+    color: #9a3412;
+  }
+
+  .gb-cust-empty {
+    text-align: center;
+    padding: 3rem 1.5rem;
+    color: var(--gc-muted);
+    font-size: 0.9375rem;
+    font-weight: 500;
+  }
+
+  @media (prefers-reduced-motion: reduce) {
+    .gb-cust-btn-filter:hover,
+    .gb-cust-link--primary:hover {
+      transform: none;
+    }
+  }
+</style>
+
+<main class="gb-cust-page">
+  <div class="gb-cust-page__shell">
+    <h1 class="pp-sr-only">Customers</h1>
+
+    <section class="gb-cust-filters" aria-label="Search and filter customers">
+      <form method="get" class="gb-cust-filters__form">
+        <div class="gb-cust-field gb-cust-field--search">
+          <label for="gc-search">Search</label>
+          <input type="text" id="gc-search" name="search" value="{{ search }}" placeholder="Name, email, or phone…" autocomplete="off">
+        </div>
+        <div class="gb-cust-filters__actions">
+          <button type="submit" class="gb-cust-btn-filter">
+            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2" aria-hidden="true">
+              <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+            </svg>
+            Apply
+          </button>
+          <a href="{{ path('app_customer_index') }}" class="gb-cust-btn-ghost">Reset</a>
+        </div>
+      </form>
+    </section>
+
+    <div class="gb-cust-scroll">
+      <div class="gb-cust-table-wrap">
+        <table class="gb-cust-table" id="customersIndexTable">
+          <thead>
+            <tr>
+              <th scope="col">ID</th>
+              <th scope="col">Name</th>
+              <th scope="col">Email</th>
+              <th scope="col">Phone</th>
+              <th scope="col">Created</th>
+              <th scope="col">Actions</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for customer in customers %}
+              <tr>
+                <td class="gc-id">#{{ customer.id }}</td>
+                <td><strong>{{ customer.Name }}</strong></td>
+                <td>
+                  {% if customer.Email %}
+                    <a href="mailto:{{ customer.Email|e('html_attr') }}" class="gc-email-link" style="color: var(--gc-accent); text-decoration: none; font-weight: 500;">{{ customer.Email }}</a>
+                  {% else %}
+                    <span class="gc-empty">—</span>
+                  {% endif %}
+                </td>
+                <td class="gc-mono">{% if customer.Phone %}{{ customer.Phone }}{% else %}<span class="gc-empty">—</span>{% endif %}</td>
+                <td class="gc-mono">{{ customer.createAt ? customer.createAt|date('M j, Y') : '—' }}</td>
+                <td class="gc-actions">
+                  <a href="{{ path('app_customer_show', { id: customer.id }) }}" class="gb-cust-link gb-cust-link--primary">View</a>
+                  {% if is_granted('ROLE_ADMIN') or (app.user and customer.createdBy and customer.createdBy.id == app.user.id) %}
+                    <a href="{{ path('app_customer_edit', { id: customer.id }) }}" class="gb-cust-link gb-cust-link--secondary">Edit</a>
+                  {% endif %}
+                  <a href="{{ path('app_customer_new') }}" class="gb-cust-link gb-cust-link--outline">Add customer</a>
+                </td>
+              </tr>
+            {% else %}
+              <tr>
+                <td colspan="6" class="gb-cust-empty">No customers match your filters.</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+      </div>
+    </div>
+  </div>
+</main>
+{% endblock %}

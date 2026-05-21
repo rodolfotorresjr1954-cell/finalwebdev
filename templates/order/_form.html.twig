@@ -1,0 +1,54 @@
+{{ form_start(form, { attr: { class: 'gb-oe-form' } }) }}
+
+<div class="gb-oe-grid gb-oe-grid--2">
+  <div class="gb-oe-field gb-oe-field--span2">
+    {{ form_label(form.Name, 'Order name') }}
+    {{ form_widget(form.Name, { attr: { class: '', placeholder: 'e.g. Customer order label' } }) }}
+    {{ form_errors(form.Name) }}
+  </div>
+
+  <div class="gb-oe-field">
+    {{ form_label(form.createAt, 'Date & time') }}
+    {{ form_widget(form.createAt, { attr: { placeholder: '' } }) }}
+    {{ form_errors(form.createAt) }}
+  </div>
+
+  <div class="gb-oe-field">
+    {{ form_label(form.Total, 'Total (₱)') }}
+    {{ form_widget(form.Total, { attr: { placeholder: '0.00', step: '0.01' } }) }}
+    {{ form_errors(form.Total) }}
+  </div>
+
+  <div class="gb-oe-field">
+    {{ form_label(form.Status, 'Status') }}
+    {{ form_widget(form.Status) }}
+    {{ form_errors(form.Status) }}
+  </div>
+
+  <div class="gb-oe-field">
+    {{ form_label(form.paymentMethod, 'Payment method') }}
+    {{ form_widget(form.paymentMethod) }}
+    {{ form_errors(form.paymentMethod) }}
+  </div>
+
+  <div class="gb-oe-field">
+    {{ form_label(form.Customer, 'Customer') }}
+    {{ form_widget(form.Customer) }}
+    {{ form_errors(form.Customer) }}
+  </div>
+
+  <div class="gb-oe-field">
+    {{ form_label(form.products, 'Product') }}
+    {{ form_widget(form.products) }}
+    {{ form_errors(form.products) }}
+  </div>
+</div>
+
+<div class="gb-oe-actions">
+  <button type="submit" class="gb-oe-btn gb-oe-btn--primary">{{ button_label|default('Save order') }}</button>
+  {% if extraActions is defined %}
+    {{ extraActions|raw }}
+  {% endif %}
+</div>
+
+{{ form_end(form) }}

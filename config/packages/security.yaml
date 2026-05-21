@@ -1,0 +1,95 @@
+security:
+    # https://symfony.com/doc/current/security.html#registering-the-user-hashing-passwords
+    password_hashers:
+       App\Entity\User:
+            algorithm: auto
+    # https://symfony.com/doc/current/security.html#loading-the-user-the-user-provider
+    providers:
+        # used to reload user from session & other features (e.g. switch_user)
+        app_user_provider:
+            entity:
+                class: App\Entity\User
+                property: username
+    firewalls:
+        dev:
+            pattern: ^/(_(profiler|wdt)|css|images|js)/
+            security: false
+
+        api_platform:
+            pattern: ^/api
+            stateless: true
+            provider: app_user_provider
+            user_checker: App\Security\UserChecker
+            json_login:
+                check_path: /api/login
+                username_path: username
+                password_path: password
+                success_handler: App\Security\JWTAuthenticationSuccessHandler
+                failure_handler: lexik_jwt_authentication.handler.authentication_failure
+            jwt: ~
+        main:
+            lazy: true
+            provider: app_user_provider
+            custom_authenticators:
+                - App\Security\LoginAuthenticator
+                - App\Security\GoogleAuthenticator
+            entry_point: App\Security\LoginAuthenticator
+            user_checker: App\Security\UserChecker
+            logout:
+                path: app_logout
+                target: app_home
+           
+
+
+            # activate different ways to authenticate
+            # https://symfony.com/doc/current/security.html#the-firewall
+
+            # https://symfony.com/doc/current/security/impersonating_user.html
+            # switch_user: true
+
+    # Easy way to control access for large sections of your site
+    # Note: Only the *first* access control that matches will be used
+    access_control:
+        # Admin-only routes
+        - { path: ^/admin, roles: ["ROLE_ADMIN"] }
+        - { path: ^/dashboard, roles: ["ROLE_STAFF", "ROLE_ADMIN"] }
+        # Staff routes
+        - { path: ^/category, roles: ["ROLE_STAFF", "ROLE_ADMIN"] }
+        - { path: ^/product, roles: ["ROLE_STAFF", "ROLE_ADMIN"] }
+        - { path: ^/order, roles: ["ROLE_STAFF", "ROLE_ADMIN"] }
+        # Only protect the customer management area (not the public customer landing page)
+        - { path: ^/customer($|/), roles: ["ROLE_STAFF", "ROLE_ADMIN"] }
+        - { path: ^/profile, roles: ["ROLE_USER"] }
+        # Customer order history (storefront)
+        - { path: ^/my-orders, roles: ["ROLE_USER", "ROLE_STAFF", "ROLE_ADMIN"] }
+        # Public shop at /, /customer-landing, /menu, /about; login only for checkout & receipt
+        - { path: ^/customer-landing/checkout, roles: ["ROLE_USER", "ROLE_STAFF", "ROLE_ADMIN"] }
+        - { path: ^/customer-landing/receipt, roles: ["ROLE_USER", "ROLE_STAFF", "ROLE_ADMIN"] }
+
+        - { path: ^/connect/google, roles: PUBLIC_ACCESS }
+        - { path: ^/api/login, roles: PUBLIC_ACCESS}
+        - { path: ^/api/register, roles: PUBLIC_ACCESS }
+        - { path: ^/api/verify-email, roles: PUBLIC_ACCESS }
+        - { path: ^/api/resend-verification-request, roles: PUBLIC_ACCESS }
+        # Mobile API — public catalog & categories (isolated module; see MobileApiController)
+        - { path: ^/api/mobile/ping$, roles: PUBLIC_ACCESS }
+        - { path: ^/api/mobile/categories$, roles: PUBLIC_ACCESS }
+        - { path: ^/api/mobile/menu$, roles: PUBLIC_ACCESS }
+        - { path: ^/api/mobile/products$, roles: PUBLIC_ACCESS }
+        - { path: ^/api/mobile/products/, roles: PUBLIC_ACCESS }
+        - { path: ^/api/mobile/auth/google/start, roles: PUBLIC_ACCESS }
+        - { path: ^/api/mobile/auth/google/complete, roles: PUBLIC_ACCESS }
+        - { path: ^/api, roles: IS_AUTHENTICATED}
+
+when@test:
+    security:
+        password_hashers:
+            # By default, password hashers are resource intensive and take time. This is
+            # important to generate secure password hashes. In tests however, secure hashes
+            # are not important, waste resources and increase test times. The following
+            # reduces the work factor to the lowest possible values.
+            Symfony\Component\Security\Core\User\PasswordAuthenticatedUserInterface:
+                algorithm: auto
+                cost: 4 # Lowest possible value for bcrypt
+                time_cost: 3 # Lowest possible value for argon
+                memory_cost: 10 # Lowest possible value for argon

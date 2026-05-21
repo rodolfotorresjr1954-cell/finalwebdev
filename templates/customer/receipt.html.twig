@@ -1,0 +1,483 @@
+{% extends 'layout/adventure_landing.html.twig' %}
+
+{% block title %}Order receipt — Grilled &amp; Bites Burger{% endblock %}
+
+{% block stylesheets %}
+<style>
+  :root {
+    --rc-bg: #0c0e12;
+    --rc-bg-accent: #1a1510;
+    --rc-gold: #e8b339;
+    --rc-gold-soft: rgba(232, 179, 57, 0.15);
+    --rc-ink: #0f172a;
+    --rc-muted: #64748b;
+    --rc-paper: #faf9f7;
+    --rc-line: rgba(15, 23, 42, 0.08);
+    --rc-success: #0d9488;
+    --rc-radius: 20px;
+    --rc-font: 'DM Sans', system-ui, sans-serif;
+    --rc-display: 'Outfit', system-ui, sans-serif;
+  }
+
+  .rc-page {
+    min-height: 100vh;
+    margin: 0;
+    font-family: var(--rc-font);
+    background: var(--rc-bg);
+    background-image:
+      radial-gradient(ellipse 120% 80% at 50% -20%, rgba(232, 179, 57, 0.22), transparent 55%),
+      radial-gradient(ellipse 80% 50% at 100% 50%, rgba(196, 30, 58, 0.08), transparent 45%),
+      linear-gradient(180deg, var(--rc-bg) 0%, var(--rc-bg-accent) 100%);
+    color: #e2e8f0;
+    padding: clamp(1.25rem, 4vw, 2.5rem) 1rem 3rem;
+  }
+
+  .rc-wrap {
+    max-width: 520px;
+    margin: 0 auto;
+  }
+
+  .rc-actions {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .rc-actions__left h1 {
+    font-family: var(--rc-display);
+    font-weight: 800;
+    font-size: clamp(1.75rem, 4vw, 2.125rem);
+    letter-spacing: -0.03em;
+    margin: 0 0 0.35rem;
+    color: #fff;
+    line-height: 1.1;
+  }
+
+  .rc-actions__left p {
+    margin: 0;
+    font-size: 0.9375rem;
+    color: rgba(255, 255, 255, 0.72);
+    font-weight: 500;
+  }
+
+  .rc-actions__btns {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+  }
+
+  .rc-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.4rem;
+    padding: 0.65rem 1.1rem;
+    font-family: var(--rc-font);
+    font-size: 0.8125rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    text-decoration: none;
+    border-radius: 10px;
+    border: none;
+    cursor: pointer;
+    transition: transform 0.15s ease, box-shadow 0.15s ease, background 0.15s ease;
+  }
+
+  .rc-btn:active { transform: scale(0.98); }
+
+  .rc-btn--ghost {
+    background: rgba(255, 255, 255, 0.1);
+    color: #fff;
+    border: 1px solid rgba(255, 255, 255, 0.18);
+  }
+
+  .rc-btn--ghost:hover {
+    background: rgba(255, 255, 255, 0.16);
+    border-color: rgba(232, 179, 57, 0.4);
+  }
+
+  .rc-btn--primary {
+    background: linear-gradient(135deg, var(--rc-gold), #d4a017);
+    color: #1a1204;
+    box-shadow: 0 8px 24px rgba(232, 179, 57, 0.35);
+  }
+
+  .rc-btn--primary:hover {
+    box-shadow: 0 10px 28px rgba(232, 179, 57, 0.45);
+    filter: brightness(1.05);
+  }
+
+  .rc-card {
+    background: var(--rc-paper);
+    color: var(--rc-ink);
+    border-radius: var(--rc-radius);
+    box-shadow:
+      0 4px 6px rgba(0, 0, 0, 0.04),
+      0 24px 48px -12px rgba(0, 0, 0, 0.45),
+      0 0 0 1px rgba(255, 255, 255, 0.06) inset;
+    overflow: hidden;
+    position: relative;
+  }
+
+  .rc-card::before {
+    content: '';
+    display: block;
+    height: 5px;
+    background: linear-gradient(90deg, var(--rc-gold), #f59e0b, #c41e3a);
+  }
+
+  .rc-card__inner {
+    padding: clamp(1.5rem, 4vw, 2rem);
+  }
+
+  .rc-brand {
+    text-align: center;
+    padding-bottom: 1.25rem;
+    margin-bottom: 1.25rem;
+    border-bottom: 1px dashed var(--rc-line);
+  }
+
+  .rc-brand__name {
+    font-family: 'Yellowtail', cursive;
+    font-size: clamp(1.5rem, 4vw, 1.85rem);
+    color: #b45309;
+    margin: 0 0 0.25rem;
+    letter-spacing: 0.02em;
+  }
+
+  .rc-brand__tag {
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: var(--rc-muted);
+    margin: 0;
+  }
+
+  .rc-meta {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1.25rem;
+  }
+
+  @media (max-width: 420px) {
+    .rc-meta { grid-template-columns: 1fr; }
+  }
+
+  .rc-pill {
+    background: #fff;
+    border: 1px solid var(--rc-line);
+    border-radius: 14px;
+    padding: 0.85rem 1rem;
+  }
+
+  .rc-pill__label {
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--rc-muted);
+    margin-bottom: 0.35rem;
+  }
+
+  .rc-pill__value {
+    font-family: var(--rc-display);
+    font-size: 1.25rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    color: var(--rc-ink);
+  }
+
+  .rc-pill__value--status {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 1rem !important;
+    text-transform: capitalize;
+    color: var(--rc-success);
+  }
+
+  .rc-pill__value--status.is-pending {
+    color: #b45309;
+  }
+
+  .rc-status-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+    background: currentColor;
+    flex-shrink: 0;
+  }
+
+  .rc-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem 1.5rem;
+    padding: 1.25rem 0;
+    border-top: 1px solid var(--rc-line);
+    border-bottom: 1px solid var(--rc-line);
+  }
+
+  @media (max-width: 480px) {
+    .rc-grid { grid-template-columns: 1fr; }
+  }
+
+  .rc-field__label {
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.1em;
+    text-transform: uppercase;
+    color: var(--rc-muted);
+    margin-bottom: 0.4rem;
+  }
+
+  .rc-field__value {
+    font-size: 0.9375rem;
+    font-weight: 600;
+    color: var(--rc-ink);
+    line-height: 1.5;
+  }
+
+  .rc-field__value--muted {
+    font-weight: 500;
+    color: #475569;
+    font-size: 0.875rem;
+  }
+
+  .rc-items-head {
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    margin: 1.5rem 0 0.75rem;
+  }
+
+  .rc-items-head h2 {
+    font-family: var(--rc-display);
+    font-size: 1rem;
+    font-weight: 800;
+    letter-spacing: -0.02em;
+    margin: 0;
+    color: var(--rc-ink);
+  }
+
+  .rc-items-head span {
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: var(--rc-muted);
+  }
+
+  .rc-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9375rem;
+  }
+
+  .rc-table thead th {
+    text-align: left;
+    font-size: 0.6875rem;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--rc-muted);
+    padding: 0.5rem 0;
+    border-bottom: 2px solid var(--rc-ink);
+  }
+
+  .rc-table thead th:last-child {
+    text-align: right;
+  }
+
+  .rc-table tbody td {
+    padding: 0.85rem 0;
+    border-bottom: 1px solid var(--rc-line);
+    vertical-align: top;
+  }
+
+  .rc-table tbody td:last-child {
+    text-align: right;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    color: var(--rc-ink);
+  }
+
+  .rc-table tbody tr:last-child td {
+    border-bottom: none;
+  }
+
+  .rc-item-name {
+    font-weight: 700;
+    color: var(--rc-ink);
+  }
+
+  .rc-total {
+    margin-top: 1.25rem;
+    padding: 1.15rem 1.25rem;
+    background: linear-gradient(135deg, var(--rc-ink) 0%, #1e293b 100%);
+    border-radius: 14px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .rc-total__label {
+    font-size: 0.75rem;
+    font-weight: 700;
+    letter-spacing: 0.14em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.65);
+  }
+
+  .rc-total__amount {
+    font-family: var(--rc-display);
+    font-size: clamp(1.5rem, 4vw, 1.85rem);
+    font-weight: 800;
+    color: var(--rc-gold);
+    letter-spacing: -0.03em;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .rc-footer-note {
+    text-align: center;
+    margin: 1.25rem 0 0;
+    font-size: 0.75rem;
+    color: var(--rc-muted);
+    line-height: 1.5;
+  }
+
+  @media print {
+    .rc-page {
+      background: #fff !important;
+      padding: 0;
+      color: #000;
+    }
+    .rc-actions__left h1,
+    .rc-actions__left p { color: #000 !important; }
+    .rc-actions__btns { display: none !important; }
+    .rc-card {
+      box-shadow: none !important;
+      border: 1px solid #ddd;
+    }
+    .rc-btn { display: none !important; }
+  }
+</style>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=DM+Sans:ital,opsz,wght@0,9..40,400;0,9..40,500;0,9..40,600;0,9..40,700;1,9..40,400&family=Outfit:wght@500;600;700;800&display=swap" rel="stylesheet">
+{% endblock %}
+
+{% block body %}
+<main class="rc-page">
+  <div class="rc-wrap">
+    <div class="rc-actions no-print">
+      <div class="rc-actions__left">
+        <h1>Receipt</h1>
+        <p>Thank you for ordering with us.</p>
+      </div>
+      <div class="rc-actions__btns">
+        <button type="button" class="rc-btn rc-btn--ghost" onclick="window.print()">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M6 9V2h12v7M6 18H4a2 2 0 01-2-2v-5a2 2 0 012-2h16a2 2 0 012 2v5a2 2 0 01-2 2h-2"/><path d="M6 14h12v8H6z"/></svg>
+          Print
+        </button>
+        <a href="{{ path('customer_menu') }}" class="rc-btn rc-btn--primary">Back to menu</a>
+      </div>
+    </div>
+
+    <article class="rc-card">
+      <div class="rc-card__inner">
+        <header class="rc-brand">
+          <p class="rc-brand__name">Grilled &amp; Bites Burger</p>
+          <p class="rc-brand__tag">Order confirmation</p>
+        </header>
+
+        <div class="rc-meta">
+          <div class="rc-pill">
+            <div class="rc-pill__label">Order ID</div>
+            <div class="rc-pill__value">#{{ order.id }}</div>
+          </div>
+          <div class="rc-pill">
+            <div class="rc-pill__label">Status</div>
+            <div class="rc-pill__value rc-pill__value--status {% if order.status|lower == 'pending' %}is-pending{% endif %}">
+              <span class="rc-status-dot" aria-hidden="true"></span>
+              {{ order.status }}
+            </div>
+          </div>
+        </div>
+
+        <div class="rc-grid">
+          <div>
+            <div class="rc-field__label">Customer</div>
+            <div class="rc-field__value">{{ order.customer ? order.customer.name : '—' }}</div>
+            <div class="rc-field__value rc-field__value--muted">{{ order.customer ? order.customer.email : '—' }}</div>
+            {% if order.customer and order.customer.phone %}
+              <div class="rc-field__value rc-field__value--muted">{{ order.customer.phone }}</div>
+            {% endif %}
+          </div>
+          <div>
+            <div class="rc-field__label">Placed at</div>
+            <div class="rc-field__value">
+              {{ order.createAt ? order.createAt|date('F j, Y') : '—' }}
+            </div>
+            <div class="rc-field__value rc-field__value--muted">
+              {{ order.createAt ? order.createAt|date('g:i A') : '' }}
+            </div>
+            <div style="margin-top:0.85rem;">
+              <div class="rc-field__label">Payment</div>
+              <div class="rc-field__value">
+                {% if order.paymentMethod == 'cash' %}Cash
+                {% elseif order.paymentMethod == 'gcash' %}GCash
+                {% elseif order.paymentMethod == 'atm' %}ATM / Bank
+                {% else %}—{% endif %}
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <div class="rc-items-head">
+          <h2>Your order</h2>
+          <span>{{ order.products|length }} item{% if order.products|length != 1 %}s{% endif %}</span>
+        </div>
+
+        <table class="rc-table">
+          <thead>
+            <tr>
+              <th scope="col">Item</th>
+              <th scope="col">Price</th>
+            </tr>
+          </thead>
+          <tbody>
+            {% for product in order.products %}
+              <tr>
+                <td class="rc-item-name">{{ product.name }}</td>
+                <td>₱{{ product.price }}</td>
+              </tr>
+            {% else %}
+              <tr>
+                <td colspan="2" class="rc-field__value--muted" style="text-align:center;padding:1.5rem;">No line items</td>
+              </tr>
+            {% endfor %}
+          </tbody>
+        </table>
+
+        <div class="rc-total">
+          <span class="rc-total__label">Total paid</span>
+          <span class="rc-total__amount">₱{{ order.total }}</span>
+        </div>
+
+        <p class="rc-footer-note">Keep this receipt for your records. Questions? Reach us at <strong>greenbites@gmail.com</strong></p>
+      </div>
+    </article>
+
+    <p class="no-print" style="text-align:center;margin-top:1.5rem;font-size:0.8125rem;color:rgba(255,255,255,0.5);">
+      <a href="{{ path('app_home') }}" style="color:rgba(232,179,57,0.9);text-decoration:none;font-weight:600;">← Home</a>
+    </p>
+  </div>
+</main>
+{% endblock %}

@@ -1,0 +1,477 @@
+{% extends 'layout/adventure_landing.html.twig' %}
+
+{% block title %}Checkout — Grilled &amp; Bites Burger{% endblock %}
+
+{% block stylesheets %}
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:ital,wght@0,400;0,500;0,600;0,700;0,800;1,600&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --co-violet: #7c3aed;
+    --co-violet-deep: #5b21b6;
+    --co-fuchsia: #e879f9;
+    --co-pink: #f472b6;
+    --co-rose: #fb7185;
+    --co-ink: #0f172a;
+    --co-ink-soft: #334155;
+    --co-muted: #64748b;
+    --co-line: rgba(15, 23, 42, 0.08);
+    --co-orange: #ff6b35;
+    --co-orange-hover: #ff5722;
+    --co-radius: 22px;
+    --co-radius-sm: 14px;
+    --co-font: 'Plus Jakarta Sans', system-ui, sans-serif;
+  }
+
+  .co-page {
+    min-height: 100vh;
+    font-family: var(--co-font);
+    background: var(--co-ink);
+    background-image:
+      radial-gradient(ellipse 100% 80% at 10% -20%, rgba(124, 58, 237, 0.45), transparent 50%),
+      radial-gradient(ellipse 80% 60% at 90% 10%, rgba(244, 114, 182, 0.4), transparent 45%),
+      radial-gradient(ellipse 60% 40% at 50% 100%, rgba(232, 121, 249, 0.25), transparent 50%),
+      linear-gradient(155deg, #4c1d95 0%, #7c3aed 28%, #a855f7 52%, #e879f9 78%, #fbcfe8 100%);
+    padding: clamp(1.25rem, 4vw, 2.5rem) 1rem 2.5rem;
+    position: relative;
+    overflow-x: hidden;
+  }
+
+  .co-page::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.8' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)' opacity='0.04'/%3E%3C/svg%3E");
+    pointer-events: none;
+    mix-blend-mode: overlay;
+  }
+
+  .co-top {
+    max-width: 1040px;
+    margin: 0 auto 1.25rem;
+    position: relative;
+    z-index: 1;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.75rem;
+  }
+
+  .co-back {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.4rem;
+    color: rgba(255, 255, 255, 0.92);
+    text-decoration: none;
+    font-size: 0.875rem;
+    font-weight: 600;
+    padding: 0.5rem 0.85rem;
+    border-radius: 999px;
+    background: rgba(255, 255, 255, 0.12);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    backdrop-filter: blur(8px);
+    transition: background 0.2s, border-color 0.2s;
+  }
+
+  .co-back:hover {
+    background: rgba(255, 255, 255, 0.2);
+    border-color: rgba(255, 255, 255, 0.35);
+    color: #fff;
+  }
+
+  .co-brand {
+    font-size: 0.75rem;
+    font-weight: 800;
+    letter-spacing: 0.2em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.55);
+  }
+
+  .co-shell {
+    max-width: 1040px;
+    margin: 0 auto;
+    position: relative;
+    z-index: 1;
+  }
+
+  .co-card {
+    background: #ffffff;
+    border-radius: var(--co-radius);
+    box-shadow:
+      0 4px 6px rgba(0, 0, 0, 0.04),
+      0 24px 48px -12px rgba(91, 33, 182, 0.35),
+      0 0 0 1px rgba(255, 255, 255, 0.5) inset;
+    display: grid;
+    grid-template-columns: 1.15fr 0.95fr;
+    overflow: hidden;
+    min-height: min(560px, calc(100vh - 8rem));
+  }
+
+  @media (max-width: 880px) {
+    .co-card {
+      grid-template-columns: 1fr;
+      min-height: unset;
+    }
+  }
+
+  .co-pay {
+    padding: clamp(1.75rem, 4vw, 2.5rem);
+    display: flex;
+    flex-direction: column;
+  }
+
+  .co-pay__head {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    margin-bottom: 1.75rem;
+  }
+
+  .co-pay__icon {
+    width: 44px;
+    height: 44px;
+    border-radius: 12px;
+    background: linear-gradient(135deg, rgba(124, 58, 237, 0.12), rgba(244, 114, 182, 0.12));
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--co-violet-deep);
+  }
+
+  .co-pay__icon svg {
+    width: 22px;
+    height: 22px;
+  }
+
+  .co-pay__title {
+    margin: 0;
+    font-size: clamp(1.35rem, 3vw, 1.6rem);
+    font-weight: 800;
+    color: var(--co-ink);
+    letter-spacing: -0.03em;
+  }
+
+  .co-pay__sub {
+    margin: 0.2rem 0 0;
+    font-size: 0.8125rem;
+    color: var(--co-muted);
+    font-weight: 500;
+  }
+
+  .co-form {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+  }
+
+  .co-methods {
+    display: flex;
+    flex-direction: column;
+    gap: 0.65rem;
+    margin-bottom: auto;
+    padding-bottom: 1.5rem;
+  }
+
+  .co-method {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 1rem;
+    padding: 1rem 1.15rem;
+    border-radius: var(--co-radius-sm);
+    border: 2px solid var(--co-line);
+    background: #fafafa;
+    cursor: pointer;
+    transition: border-color 0.2s, background 0.2s, box-shadow 0.2s;
+  }
+
+  .co-method:hover {
+    border-color: rgba(124, 58, 237, 0.25);
+    background: #fff;
+  }
+
+  .co-method:has(input:checked) {
+    border-color: var(--co-violet);
+    background: linear-gradient(135deg, rgba(124, 58, 237, 0.06), rgba(244, 114, 182, 0.06));
+    box-shadow: 0 0 0 3px rgba(124, 58, 237, 0.12);
+  }
+
+  .co-method__text strong {
+    display: block;
+    font-size: 0.9375rem;
+    font-weight: 800;
+    color: var(--co-ink);
+    letter-spacing: -0.02em;
+  }
+
+  .co-method__text span {
+    display: block;
+    font-size: 0.8125rem;
+    color: var(--co-muted);
+    font-weight: 500;
+    margin-top: 0.2rem;
+  }
+
+  .co-method input[type="radio"] {
+    width: 20px;
+    height: 20px;
+    accent-color: var(--co-orange);
+    flex-shrink: 0;
+    cursor: pointer;
+  }
+
+  .co-submit {
+    width: 100%;
+    margin-top: 1.25rem;
+    padding: 1rem 1.25rem;
+    border: none;
+    border-radius: var(--co-radius-sm);
+    font-family: var(--co-font);
+    font-size: 0.9375rem;
+    font-weight: 800;
+    letter-spacing: 0.02em;
+    color: #fff;
+    cursor: pointer;
+    background: linear-gradient(135deg, #ff8c42 0%, var(--co-orange) 45%, #ea580c 100%);
+    box-shadow: 0 8px 24px rgba(255, 107, 53, 0.45);
+    transition: transform 0.15s ease, box-shadow 0.2s ease, filter 0.2s ease;
+  }
+
+  .co-submit:hover {
+    filter: brightness(1.05);
+    box-shadow: 0 12px 32px rgba(255, 107, 53, 0.5);
+    transform: translateY(-1px);
+  }
+
+  .co-submit:active {
+    transform: translateY(0);
+  }
+
+  .co-summary {
+    padding: clamp(1.75rem, 4vw, 2.5rem);
+    background: linear-gradient(180deg, #f8fafc 0%, #f1f5f9 100%);
+    border-left: 1px solid var(--co-line);
+    display: flex;
+    flex-direction: column;
+  }
+
+  @media (max-width: 880px) {
+    .co-summary {
+      border-left: none;
+      border-top: 1px solid var(--co-line);
+    }
+  }
+
+  .co-summary__kicker {
+    font-size: 0.6875rem;
+    font-weight: 800;
+    letter-spacing: 0.18em;
+    color: var(--co-muted);
+    margin: 0 0 0.35rem;
+  }
+
+  .co-summary__title {
+    margin: 0 0 1.5rem;
+    font-size: 1.25rem;
+    font-weight: 800;
+    color: var(--co-ink);
+    letter-spacing: -0.03em;
+  }
+
+  .co-lines {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 0;
+    max-height: 320px;
+    overflow-y: auto;
+    padding-right: 0.35rem;
+    margin: 0 -0.35rem 0 0;
+  }
+
+  .co-lines::-webkit-scrollbar {
+    width: 6px;
+  }
+  .co-lines::-webkit-scrollbar-thumb {
+    background: rgba(15, 23, 42, 0.15);
+    border-radius: 999px;
+  }
+
+  .co-line {
+    display: grid;
+    grid-template-columns: 52px 1fr auto;
+    gap: 0.85rem;
+    align-items: center;
+    padding: 0.85rem 0;
+    border-bottom: 1px dashed rgba(15, 23, 42, 0.1);
+  }
+
+  .co-line:last-child {
+    border-bottom: none;
+  }
+
+  .co-thumb {
+    width: 52px;
+    height: 52px;
+    border-radius: 12px;
+    background: #e2e8f0;
+    overflow: hidden;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+    box-shadow: 0 2px 8px rgba(15, 23, 42, 0.08);
+  }
+
+  .co-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+  }
+
+  .co-thumb--empty {
+    font-size: 0.65rem;
+    font-weight: 800;
+    color: var(--co-muted);
+  }
+
+  .co-line__name {
+    font-weight: 700;
+    font-size: 0.9375rem;
+    color: var(--co-ink);
+    line-height: 1.3;
+  }
+
+  .co-line__price {
+    font-weight: 800;
+    font-size: 0.9375rem;
+    color: var(--co-ink-soft);
+    font-variant-numeric: tabular-nums;
+  }
+
+  .co-total {
+    margin-top: 1.25rem;
+    padding-top: 1.25rem;
+    border-top: 2px solid rgba(15, 23, 42, 0.1);
+    display: flex;
+    align-items: baseline;
+    justify-content: space-between;
+    gap: 1rem;
+  }
+
+  .co-total__label {
+    font-size: 0.875rem;
+    font-weight: 700;
+    color: var(--co-muted);
+    text-transform: uppercase;
+    letter-spacing: 0.06em;
+  }
+
+  .co-total__value {
+    font-size: clamp(1.35rem, 3vw, 1.65rem);
+    font-weight: 800;
+    color: var(--co-ink);
+    letter-spacing: -0.03em;
+    font-variant-numeric: tabular-nums;
+  }
+
+  .co-empty {
+    color: var(--co-muted);
+    font-size: 0.9rem;
+    padding: 1rem 0;
+  }
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="co-page">
+  <div class="co-top">
+    <a href="{{ path('customer_menu') }}" class="co-back" aria-label="Back to menu">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" aria-hidden="true"><path d="M15 18l-6-6 6-6"/></svg>
+      Back to menu
+    </a>
+    <span class="co-brand">Secure checkout</span>
+  </div>
+
+  <div class="co-shell">
+    <div class="co-card">
+      <section class="co-pay" aria-labelledby="co-pay-title">
+        <div class="co-pay__head">
+          <div class="co-pay__icon" aria-hidden="true">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <rect x="3" y="11" width="18" height="11" rx="2" ry="2"></rect>
+              <path d="M7 11V7a5 5 0 0 1 10 0v4"></path>
+            </svg>
+          </div>
+          <div>
+            <h1 class="co-pay__title" id="co-pay-title">Payment</h1>
+            <p class="co-pay__sub">Choose how you’d like to pay for this order.</p>
+          </div>
+        </div>
+
+        <form method="post" action="{{ path('customer_checkout_place') }}" class="co-form">
+          <input type="hidden" name="_token" value="{{ csrf_token('checkout_place') }}">
+
+          <div class="co-methods" role="radiogroup" aria-label="Payment method">
+            <label class="co-method">
+              <div class="co-method__text">
+                <strong>Cash</strong>
+                <span>Pay on delivery</span>
+              </div>
+              <input type="radio" name="paymentMethod" value="cash" required>
+            </label>
+
+            <label class="co-method">
+              <div class="co-method__text">
+                <strong>GCash</strong>
+                <span>Pay via GCash</span>
+              </div>
+              <input type="radio" name="paymentMethod" value="gcash" required>
+            </label>
+
+            <label class="co-method">
+              <div class="co-method__text">
+                <strong>ATM</strong>
+                <span>Bank transfer</span>
+              </div>
+              <input type="radio" name="paymentMethod" value="atm" required>
+            </label>
+          </div>
+
+          <button type="submit" class="co-submit">Place Order</button>
+        </form>
+      </section>
+
+      <aside class="co-summary" aria-labelledby="co-summary-title">
+        <p class="co-summary__kicker">Order</p>
+        <h2 class="co-summary__title" id="co-summary-title">Order summary</h2>
+
+        <div class="co-lines">
+          {% for product in cartProducts %}
+            <div class="co-line">
+              <div class="co-thumb">
+                {% if product.image %}
+                  <img src="{{ asset('uploads/images/' ~ product.image) }}" alt="">
+                {% else %}
+                  <span class="co-thumb--empty">—</span>
+                {% endif %}
+              </div>
+              <div class="co-line__name">{{ product.name }}</div>
+              <div class="co-line__price">₱{{ product.price }}</div>
+            </div>
+          {% else %}
+            <p class="co-empty">No items in your cart.</p>
+          {% endfor %}
+        </div>
+
+        <div class="co-total">
+          <span class="co-total__label">Total</span>
+          <span class="co-total__value">₱{{ total }}</span>
+        </div>
+      </aside>
+    </div>
+  </div>
+</div>
+{% endblock %}

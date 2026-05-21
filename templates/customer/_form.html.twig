@@ -1,0 +1,28 @@
+{{ form_start(form, {'attr': {'novalidate': 'novalidate'}}) }}
+
+<div class="ue-grid">
+    <div class="ue-field">
+        {{ form_label(form.Name, 'Name') }}
+        {{ form_widget(form.Name, {'attr': {'class': 'ue-input', 'placeholder': 'Full name', 'autocomplete': 'name'}}) }}
+        <div class="ue-errors">{{ form_errors(form.Name) }}</div>
+    </div>
+    <div class="ue-field">
+        {{ form_label(form.Email, 'Email') }}
+        {{ form_widget(form.Email, {'attr': {'class': 'ue-input', 'placeholder': 'email@example.com', 'autocomplete': 'email'}}) }}
+        <div class="ue-errors">{{ form_errors(form.Email) }}</div>
+    </div>
+    <div class="ue-field">
+        {{ form_label(form.Phone, 'Phone') }}
+        {{ form_widget(form.Phone, {'attr': {'class': 'ue-input', 'placeholder': 'Phone number', 'autocomplete': 'tel'}}) }}
+        <div class="ue-errors">{{ form_errors(form.Phone) }}</div>
+    </div>
+</div>
+
+<div class="ue-actions">
+    {% if cancel_href is defined and cancel_href %}
+        <a href="{{ cancel_href }}" class="ue-btn ue-btn--ghost">Cancel</a>
+    {% endif %}
+    <button type="submit" class="ue-btn ue-btn--primary">{{ button_label|default('Save changes') }}</button>
+</div>
+
+{{ form_end(form) }}

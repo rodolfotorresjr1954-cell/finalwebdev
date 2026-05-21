@@ -1,0 +1,39 @@
+{% extends 'layout/adventure_landing.html.twig' %}
+
+{% block title %}Our Menu — Grilled &amp; Bites Burger{% endblock %}
+
+{% block stylesheets %}
+<style>
+{% include 'customer/_shop_shared_styles.html.twig' %}
+</style>
+{% endblock %}
+
+{% block body %}
+<div class="adv-page" x-data="{ mobileOpen: false }">
+  <header class="gb-menu-page-header">
+    {% include 'customer/_shop_nav_bars.html.twig' with { on_menu_page: true, on_about_page: false, cartProducts: cartProducts } %}
+  </header>
+
+  {% include 'customer/_our_menu_section.html.twig' with {
+    products: products,
+    menu_categories: menu_categories,
+    has_uncategorized_product: has_uncategorized_product,
+    cartProductIds: cartProductIds,
+    cart_return: 'menu',
+    page_mode: true
+  } %}
+
+  {% include 'customer/_contact_footer.html.twig' %}
+
+  {% if cartProducts|length > 0 %}
+    <a href="{{ path('customer_checkout') }}" class="adv-cart-fab" aria-label="Checkout">
+      🛒
+      <span>{{ cartProducts|length }}</span>
+    </a>
+  {% endif %}
+</div>
+{% endblock %}
+
+{% block javascripts %}
+{{ parent() }}
+{% endblock %}

@@ -1,0 +1,24 @@
+{% extends 'base.html.twig' %}
+
+{% block title %}New customer{% endblock %}
+
+{% block body %}
+<main class="ue-page">
+    <div class="ue-shell">
+        <a href="{{ path('app_customer_index') }}" class="ue-back">← Back to customers</a>
+
+        <div class="ue-card">
+            <header class="ue-card__head">
+                <p class="ue-card__eyebrow">Customers</p>
+                <h1 class="ue-card__title">Create customer</h1>
+            </header>
+            <div class="ue-card__body">
+                {{ include('customer/_form.html.twig', {
+                    button_label: 'Create customer',
+                    cancel_href: path('app_customer_index'),
+                }) }}
+            </div>
+        </div>
+    </div>
+</main>
+{% endblock %}
