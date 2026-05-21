@@ -42,6 +42,9 @@ RUN apt-get update && apt-get install -y \
 
 COPY --from=builder /app /app
 
+# Enable PHP error logging to stderr so crashes are visible in deployment logs
+COPY php-ini/99-logging.ini /usr/local/etc/php/conf.d/99-logging.ini
+
 RUN mkdir -p /app/var && \
     chown -R www-data:www-data /app && \
     chmod -R 755 /app && \
