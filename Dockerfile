@@ -24,6 +24,9 @@ COPY . .
 
 RUN if [ ! -f /app/.env ]; then echo "APP_ENV=${APP_ENV:-prod}\nAPP_DEBUG=${APP_DEBUG:-false}\nAPP_SECRET=${APP_SECRET:-ChangeMe}\n" > /app/.env; fi
 
+# Webpack Encore assets (entrypoints.json, manifest.json) — required by Twig in prod
+RUN npm ci && NODE_ENV=production npm run build
+
 # Now run post-install scripts after app code is available
 RUN composer install --no-interaction --optimize-autoloader --no-ansi || true
 RUN php bin/console importmap:install --no-interaction

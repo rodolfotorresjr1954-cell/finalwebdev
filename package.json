@@ -24,7 +24,9 @@
   },
   "homepage": "https://github.com/krisha116/Burger#readme",
   "dependencies": {
+    "@hotwired/stimulus": "^3.2.2",
     "@symfony/stimulus-bridge": "^4.0.1",
+    "@symfony/ux-turbo": "^2.30.0",
     "@symfony/webpack-encore": "^5.2.0"
   }
 }

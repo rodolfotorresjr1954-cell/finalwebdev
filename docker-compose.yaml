@@ -33,7 +33,7 @@ services:
       APP_SECRET: ${APP_SECRET}
       DATABASE_URL: "mysql://${MYSQL_USER}:${MYSQL_PASSWORD}@mysql:3306/${MYSQL_DATABASE}?serverVersion=8.0&charset=utf8mb4"
     ports:
-      - "8000:8080"
+      - "8000:80"
 
     
     phpmyadmin:
