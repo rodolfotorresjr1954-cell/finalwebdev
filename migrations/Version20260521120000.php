@@ -14,17 +14,60 @@ final class Version20260521120000 extends AbstractMigration
         return 'Add cart_item table for mobile persisted carts';
     }
 
+    public function isTransactional(): bool
+    {
+        return false;
+    }
+
     public function up(Schema $schema): void
     {
-        $this->addSql('CREATE TABLE cart_item (id INT AUTO_INCREMENT NOT NULL, user_id INT NOT NULL, product_id INT NOT NULL, quantity INT DEFAULT 1 NOT NULL, updated_at DATETIME NOT NULL COMMENT \'(DC2Type:datetime_immutable)\', INDEX IDX_cart_item_user (user_id), INDEX IDX_cart_item_product (product_id), UNIQUE INDEX UNIQ_CART_USER_PRODUCT (user_id, product_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
-        $this->addSql('ALTER TABLE cart_item ADD CONSTRAINT FK_cart_item_user FOREIGN KEY (user_id) REFERENCES user (id) ON DELETE CASCADE');
-        $this->addSql('ALTER TABLE cart_item ADD CONSTRAINT FK_cart_item_product FOREIGN KEY (product_id) REFERENCES product (id) ON DELETE CASCADE');
+        if (!$this->tableExists('cart_item')) {
+            $this->addSql('CREATE TABLE cart_item (id INT AUTO_INCREMENT NOT NULL, user_id INT NOT NULL, product_id INT NOT NULL, quantity INT DEFAULT 1 NOT NULL, updated_at DATETIME NOT NULL COMMENT \'(DC2Type:datetime_immutable)\', INDEX IDX_cart_item_user (user_id), INDEX IDX_cart_item_product (product_id), UNIQUE INDEX UNIQ_CART_USER_PRODUCT (user_id, product_id), PRIMARY KEY(id)) DEFAULT CHARACTER SET utf8mb4 COLLATE `utf8mb4_unicode_ci` ENGINE = InnoDB');
+        }
+        if (!$this->foreignKeyExists('cart_item', 'FK_cart_item_user')) {
+            $this->addSql('ALTER TABLE cart_item ADD CONSTRAINT FK_cart_item_user FOREIGN KEY (user_id) REFERENCES user (id) ON DELETE CASCADE');
+        }
+        if (!$this->foreignKeyExists('cart_item', 'FK_cart_item_product')) {
+            $this->addSql('ALTER TABLE cart_item ADD CONSTRAINT FK_cart_item_product FOREIGN KEY (product_id) REFERENCES product (id) ON DELETE CASCADE');
+        }
     }
 
     public function down(Schema $schema): void
     {
-        $this->addSql('ALTER TABLE cart_item DROP FOREIGN KEY FK_cart_item_user');
-        $this->addSql('ALTER TABLE cart_item DROP FOREIGN KEY FK_cart_item_product');
-        $this->addSql('DROP TABLE cart_item');
+        if ($this->foreignKeyExists('cart_item', 'FK_cart_item_user')) {
+            $this->addSql('ALTER TABLE cart_item DROP FOREIGN KEY FK_cart_item_user');
+        }
+        if ($this->foreignKeyExists('cart_item', 'FK_cart_item_product')) {
+            $this->addSql('ALTER TABLE cart_item DROP FOREIGN KEY FK_cart_item_product');
+        }
+        if ($this->tableExists('cart_item')) {
+            $this->addSql('DROP TABLE cart_item');
+        }
+    }
+
+    private function tableExists(string $tableName): bool
+    {
+        $count = $this->connection->fetchOne(
+            'SELECT COUNT(*) FROM information_schema.TABLES
+             WHERE TABLE_SCHEMA = DATABASE()
+               AND TABLE_NAME = ?',
+            [$tableName]
+        );
+
+        return (int) $count > 0;
+    }
+
+    private function foreignKeyExists(string $tableName, string $constraintName): bool
+    {
+        $count = $this->connection->fetchOne(
+            'SELECT COUNT(*) FROM information_schema.TABLE_CONSTRAINTS
+             WHERE CONSTRAINT_SCHEMA = DATABASE()
+               AND TABLE_NAME = ?
+               AND CONSTRAINT_NAME = ?
+               AND CONSTRAINT_TYPE = ?',
+            [$tableName, $constraintName, 'FOREIGN KEY']
+        );
+
+        return (int) $count > 0;
     }
 }
