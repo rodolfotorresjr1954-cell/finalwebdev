@@ -32,7 +32,7 @@ https://YOUR-RAILWAY-DOMAIN.up.railway.app/connect/google/check
 2. Open `ACT1/src/config/railway.ts` and set:
 
    ```ts
-   export const RAILWAY_PUBLIC_URL = 'https://YOUR-RAILWAY-DOMAIN.up.railway.app';
+   export const RAILWAY_PUBLIC_URL = 'https://finalwebdev-staging.up.railway.app';
    ```
 
 3. Reload the app: Metro terminal → press **`r`**.
