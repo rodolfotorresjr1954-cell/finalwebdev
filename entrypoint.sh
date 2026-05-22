@@ -1,6 +1,12 @@
 #!/bin/bash
 set -e
 
+# JWT keys are gitignored; generate on first deploy so /api/login works
+if [ ! -f /app/config/jwt/private.pem ]; then
+    echo "Generating JWT key pair..."
+    php bin/console lexik:jwt:generate-keypair --skip-if-exists 2>&1 || true
+fi
+
 # Run production migrations automatically — capture stderr so failures are visible
 echo "Running database migrations..."
 MIGRATION_OUTPUT=$(php bin/console doctrine:migrations:migrate --no-interaction --allow-no-migration 2>&1) || {
