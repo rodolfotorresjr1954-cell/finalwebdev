@@ -51,11 +51,19 @@ final class OrderController extends AbstractController
         $dir = strtolower((string) $request->query->get('dir', 'desc')) === 'asc' ? 'ASC' : 'DESC';
         $orders = $this->findFilteredOrders($orderRepository, $search, $statusFilter, $sort, $dir);
 
-        $orderIds = implode(',', array_map(static fn (Order $o): string => (string) $o->getId(), $orders));
+        $rowsSignature = implode('|', array_map(
+            static fn (Order $o): string => sprintf(
+                '%d:%s:%0.2f',
+                (int) $o->getId(),
+                strtolower((string) $o->getStatus()),
+                (float) $o->getTotal()
+            ),
+            $orders
+        ));
 
         return $this->json([
             'rowsHtml' => $this->renderView('order/_rows.html.twig', ['orders' => $orders]),
-            'orderIds' => $orderIds,
+            'rowsSignature' => $rowsSignature,
         ]);
     }
 

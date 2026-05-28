@@ -77,10 +77,8 @@
     const bodyEl = document.getElementById('ordersTableBody');
     const query = window.location.search || '';
     const rowsUrl = "{{ path('app_order_rows') }}" + query;
-    let previousIds = Array.from(document.querySelectorAll('#ordersTableBody tr[data-order-id]'))
-      .map(row => row.getAttribute('data-order-id'))
-      .filter(Boolean)
-      .join(',');
+    let previousSignature = '';
+    let firstSyncDone = false;
     let pollBusy = false;
 
     function showLiveMessage(message) {
@@ -123,11 +121,14 @@
         if (!payload || typeof payload.rowsHtml !== 'string') {
           return;
         }
-        if (payload.orderIds !== previousIds) {
+        if (typeof payload.rowsSignature === 'string' && payload.rowsSignature !== previousSignature) {
           bodyEl.innerHTML = payload.rowsHtml;
-          previousIds = payload.orderIds || '';
-          showLiveMessage('New/updated order received');
+          previousSignature = payload.rowsSignature;
+          if (firstSyncDone) {
+            showLiveMessage('New/updated order received');
+          }
         }
+        firstSyncDone = true;
       } catch (error) {
         // fail silently and retry on the next interval
       } finally {
@@ -136,6 +137,7 @@
     }
 
     window.setInterval(refreshRowsSilently, 4000);
+    refreshRowsSilently();
 
     if (window.DataTable) {
       new DataTable('#ordersIndexTable', {
