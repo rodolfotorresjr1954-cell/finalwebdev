@@ -1,0 +1,47 @@
+{% for order in orders %}
+  {% set productNameParts = [] %}
+  {% for p in order.products %}
+    {% set productNameParts = productNameParts|merge([p.Name]) %}
+  {% endfor %}
+  {% set productNamesJoined = productNameParts|join(', ') %}
+  {% set categoryLabels = order_category_labels(order) %}
+  {% set displayOrderName = productNamesJoined != '' ? productNamesJoined : order.Name %}
+  <tr data-order-id="{{ order.id }}">
+    <td class="ord-id">#{{ order.id }}</td>
+    <td class="ord-name ord-cell-clip" title="{{ displayOrderName|e('html_attr') }}">{{ displayOrderName }}</td>
+    <td class="ord-cell-clip" title="{{ order.Customer ? order.Customer.Name|e('html_attr') : '' }}">{{ order.Customer ? order.Customer.Name : '—' }}</td>
+    <td class="ord-cell-clip" title="{{ productNamesJoined|e('html_attr') }}">{{ categoryLabels }}</td>
+    <td class="ord-date">{{ order.createAt ? order.createAt|date('M j, Y') : '—' }}</td>
+    <td>
+      {% set st = order.Status|lower %}
+      {% if st in ['completed', 'approved', 'paid', 'delivered'] %}
+        <span class="order-status order-status--success">{{ order.Status }}</span>
+      {% elseif st == 'pending' %}
+        <span class="order-status order-status--warning">{{ order.Status }}</span>
+      {% elseif st in ['cancelled', 'canceled', 'expired'] %}
+        <span class="order-status order-status--muted">{{ order.Status }}</span>
+      {% else %}
+        <span class="order-status order-status--danger">{{ order.Status }}</span>
+      {% endif %}
+    </td>
+    <td class="ord-total">₱{{ order.Total|number_format(2, '.', ',') }}</td>
+    <td class="ord-payment">
+      {% if order.paymentMethod == 'cash' %}Cash
+      {% elseif order.paymentMethod == 'gcash' %}GCash
+      {% elseif order.paymentMethod == 'atm' %}ATM
+      {% else %}—{% endif %}
+    </td>
+    <td>
+      <div class="ord-actions">
+        <a href="{{ path('app_order_show', {id: order.id}) }}" class="ord-action-btn ord-action-btn--view">View</a>
+        {% if order.Status|lower != 'completed' and (is_granted('ROLE_ADMIN') or is_granted('ROLE_STAFF') or (app.user and order.createdBy and order.createdBy.id == app.user.id)) %}
+          <a href="{{ path('app_order_edit', {id: order.id}) }}" class="ord-action-btn ord-action-btn--edit">Edit</a>
+        {% endif %}
+      </div>
+    </td>
+  </tr>
+{% else %}
+  <tr class="ord-empty-row">
+    <td colspan="9">No orders match your filters.</td>
+  </tr>
+{% endfor %}

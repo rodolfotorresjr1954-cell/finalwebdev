@@ -63,54 +63,8 @@
               <th scope="col">Actions</th>
             </tr>
           </thead>
-          <tbody>
-            {% for order in orders %}
-              {% set productNameParts = [] %}
-              {% for p in order.products %}
-                {% set productNameParts = productNameParts|merge([p.Name]) %}
-              {% endfor %}
-              {% set productNamesJoined = productNameParts|join(', ') %}
-              {% set categoryLabels = order_category_labels(order) %}
-              {% set displayOrderName = productNamesJoined != '' ? productNamesJoined : order.Name %}
-              <tr>
-                <td class="ord-id">#{{ order.id }}</td>
-                <td class="ord-name ord-cell-clip" title="{{ displayOrderName|e('html_attr') }}">{{ displayOrderName }}</td>
-                <td class="ord-cell-clip" title="{{ order.Customer ? order.Customer.Name|e('html_attr') : '' }}">{{ order.Customer ? order.Customer.Name : '—' }}</td>
-                <td class="ord-cell-clip" title="{{ productNamesJoined|e('html_attr') }}">{{ categoryLabels }}</td>
-                <td class="ord-date">{{ order.createAt ? order.createAt|date('M j, Y') : '—' }}</td>
-                <td>
-                  {% set st = order.Status|lower %}
-                  {% if st in ['completed', 'approved', 'paid', 'delivered'] %}
-                    <span class="order-status order-status--success">{{ order.Status }}</span>
-                  {% elseif st == 'pending' %}
-                    <span class="order-status order-status--warning">{{ order.Status }}</span>
-                  {% elseif st in ['cancelled', 'canceled', 'expired'] %}
-                    <span class="order-status order-status--muted">{{ order.Status }}</span>
-                  {% else %}
-                    <span class="order-status order-status--danger">{{ order.Status }}</span>
-                  {% endif %}
-                </td>
-                <td class="ord-total">₱{{ order.Total|number_format(2, '.', ',') }}</td>
-                <td class="ord-payment">
-                  {% if order.paymentMethod == 'cash' %}Cash
-                  {% elseif order.paymentMethod == 'gcash' %}GCash
-                  {% elseif order.paymentMethod == 'atm' %}ATM
-                  {% else %}—{% endif %}
-                </td>
-                <td>
-                  <div class="ord-actions">
-                    <a href="{{ path('app_order_show', {id: order.id}) }}" class="ord-action-btn ord-action-btn--view">View</a>
-                    {% if order.Status|lower != 'completed' and (is_granted('ROLE_ADMIN') or is_granted('ROLE_STAFF') or (app.user and order.createdBy and order.createdBy.id == app.user.id)) %}
-                      <a href="{{ path('app_order_edit', {id: order.id}) }}" class="ord-action-btn ord-action-btn--edit">Edit</a>
-                    {% endif %}
-                  </div>
-                </td>
-              </tr>
-            {% else %}
-              <tr class="ord-empty-row">
-                <td colspan="9">No orders match your filters.</td>
-              </tr>
-            {% endfor %}
+          <tbody id="ordersTableBody">
+            {% include 'order/_rows.html.twig' with { orders: orders } %}
           </tbody>
         </table>
       </div>
@@ -120,6 +74,69 @@
 
 <script>
   document.addEventListener('DOMContentLoaded', function () {
+    const bodyEl = document.getElementById('ordersTableBody');
+    const query = window.location.search || '';
+    const rowsUrl = "{{ path('app_order_rows') }}" + query;
+    let previousIds = Array.from(document.querySelectorAll('#ordersTableBody tr[data-order-id]'))
+      .map(row => row.getAttribute('data-order-id'))
+      .filter(Boolean)
+      .join(',');
+    let pollBusy = false;
+
+    function showLiveMessage(message) {
+      let toast = document.getElementById('order-live-toast');
+      if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'order-live-toast';
+        toast.style.position = 'fixed';
+        toast.style.right = '16px';
+        toast.style.bottom = '16px';
+        toast.style.padding = '10px 14px';
+        toast.style.borderRadius = '8px';
+        toast.style.background = '#1f2937';
+        toast.style.color = '#f9fafb';
+        toast.style.fontSize = '13px';
+        toast.style.zIndex = '9999';
+        document.body.appendChild(toast);
+      }
+      toast.textContent = message;
+      toast.style.opacity = '1';
+      setTimeout(() => {
+        toast.style.opacity = '0';
+      }, 2500);
+    }
+
+    async function refreshRowsSilently() {
+      if (pollBusy || !bodyEl) {
+        return;
+      }
+      pollBusy = true;
+      try {
+        const response = await fetch(rowsUrl, {
+          headers: { 'X-Requested-With': 'XMLHttpRequest' },
+          cache: 'no-store',
+        });
+        if (!response.ok) {
+          return;
+        }
+        const payload = await response.json();
+        if (!payload || typeof payload.rowsHtml !== 'string') {
+          return;
+        }
+        if (payload.orderIds !== previousIds) {
+          bodyEl.innerHTML = payload.rowsHtml;
+          previousIds = payload.orderIds || '';
+          showLiveMessage('New/updated order received');
+        }
+      } catch (error) {
+        // fail silently and retry on the next interval
+      } finally {
+        pollBusy = false;
+      }
+    }
+
+    window.setInterval(refreshRowsSilently, 4000);
+
     if (window.DataTable) {
       new DataTable('#ordersIndexTable', {
         responsive: true,

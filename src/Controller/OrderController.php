@@ -9,6 +9,7 @@ use App\Repository\ProductRepository;
 use App\Service\ActivityLogService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
 use Symfony\Component\Routing\Attribute\Route;
@@ -30,41 +31,7 @@ final class OrderController extends AbstractController
         $statusFilter = $request->query->get('status');
         $sort = (string) $request->query->get('sort', 'date');
         $dir = strtolower((string) $request->query->get('dir', 'desc')) === 'asc' ? 'ASC' : 'DESC';
-
-        $qb = $orderRepository->createQueryBuilder('o')
-            ->distinct()
-            ->leftJoin('o.Customer', 'c')->addSelect('c')
-            ->leftJoin('o.createdBy', 'u')->addSelect('u')
-            ->leftJoin('o.products', 'op')->addSelect('op')
-            ->leftJoin('op.Category', 'opc')->addSelect('opc');
-
-        if ($search !== '') {
-            $qb->andWhere('LOWER(o.Name) LIKE :search OR LOWER(c.Name) LIKE :search')
-               ->setParameter('search', '%' . strtolower($search) . '%');
-        }
-
-        if ($statusFilter && $statusFilter !== '') {
-            $qb->andWhere('o.Status = :status')
-               ->setParameter('status', $statusFilter);
-        }
-
-        switch ($sort) {
-            case 'name':
-                $qb->orderBy('o.Name', $dir);
-                break;
-            case 'total':
-                $qb->orderBy('o.Total', $dir);
-                break;
-            case 'status':
-                $qb->orderBy('o.Status', $dir);
-                break;
-            case 'date':
-            default:
-                $qb->orderBy('o.createAt', $dir);
-                break;
-        }
-
-        $orders = $qb->getQuery()->getResult();
+        $orders = $this->findFilteredOrders($orderRepository, $search, $statusFilter, $sort, $dir);
 
         return $this->render('order/index.html.twig', [
             'orders' => $orders,
@@ -72,6 +39,23 @@ final class OrderController extends AbstractController
             'statusFilter' => $statusFilter,
             'sort' => $sort,
             'dir' => strtolower($dir),
+        ]);
+    }
+
+    #[Route('/rows', name: 'app_order_rows', methods: ['GET'])]
+    public function rows(Request $request, OrderRepository $orderRepository): JsonResponse
+    {
+        $search = trim((string) $request->query->get('search', ''));
+        $statusFilter = $request->query->get('status');
+        $sort = (string) $request->query->get('sort', 'date');
+        $dir = strtolower((string) $request->query->get('dir', 'desc')) === 'asc' ? 'ASC' : 'DESC';
+        $orders = $this->findFilteredOrders($orderRepository, $search, $statusFilter, $sort, $dir);
+
+        $orderIds = implode(',', array_map(static fn (Order $o): string => (string) $o->getId(), $orders));
+
+        return $this->json([
+            'rowsHtml' => $this->renderView('order/_rows.html.twig', ['orders' => $orders]),
+            'orderIds' => $orderIds,
         ]);
     }
 
@@ -296,5 +280,54 @@ final class OrderController extends AbstractController
         }
 
         throw new AccessDeniedException('You cannot modify this record.');
+    }
+
+    /**
+     * @return list<Order>
+     */
+    private function findFilteredOrders(
+        OrderRepository $orderRepository,
+        string $search,
+        mixed $statusFilter,
+        string $sort,
+        string $dir
+    ): array {
+        $qb = $orderRepository->createQueryBuilder('o')
+            ->distinct()
+            ->leftJoin('o.Customer', 'c')->addSelect('c')
+            ->leftJoin('o.createdBy', 'u')->addSelect('u')
+            ->leftJoin('o.products', 'op')->addSelect('op')
+            ->leftJoin('op.Category', 'opc')->addSelect('opc');
+
+        if ($search !== '') {
+            $qb->andWhere('LOWER(o.Name) LIKE :search OR LOWER(c.Name) LIKE :search')
+                ->setParameter('search', '%'.strtolower($search).'%');
+        }
+
+        if (\is_string($statusFilter) && $statusFilter !== '') {
+            $qb->andWhere('o.Status = :status')
+                ->setParameter('status', $statusFilter);
+        }
+
+        switch ($sort) {
+            case 'name':
+                $qb->orderBy('o.Name', $dir);
+                break;
+            case 'total':
+                $qb->orderBy('o.Total', $dir);
+                break;
+            case 'status':
+                $qb->orderBy('o.Status', $dir);
+                break;
+            case 'date':
+            default:
+                $qb->orderBy('o.createAt', $dir);
+                break;
+        }
+
+        /** @var list<Order> $orders */
+        $orders = $qb->getQuery()->getResult();
+
+        return $orders;
     }
 }
