@@ -57,7 +57,7 @@ final class OrderController extends AbstractController
     }
 
     #[Route('/stream', name: 'app_order_stream', methods: ['GET'])]
-    public function stream(Request $request, OrderRepository $orderRepository): StreamedResponse
+    public function streamOrders(Request $request, OrderRepository $orderRepository): StreamedResponse
     {
         $search = trim((string) $request->query->get('search', ''));
         $statusFilter = $request->query->get('status');
