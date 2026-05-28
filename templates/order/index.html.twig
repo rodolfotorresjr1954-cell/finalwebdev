@@ -77,8 +77,11 @@
     const bodyEl = document.getElementById('ordersTableBody');
     const query = window.location.search || '';
     const rowsUrl = "{{ path('app_order_rows') }}" + query;
+    const streamUrl = "{{ path('app_order_stream') }}" + query;
     let previousSignature = '';
     let firstSyncDone = false;
+    let stream = null;
+    let reconnectTimer = null;
     let pollBusy = false;
 
     function showLiveMessage(message) {
@@ -136,8 +139,46 @@
       }
     }
 
-    window.setInterval(refreshRowsSilently, 4000);
+    window.setInterval(refreshRowsSilently, 20000);
     refreshRowsSilently();
+
+    function connectStream() {
+      if (stream) {
+        stream.close();
+      }
+      stream = new EventSource(streamUrl);
+
+      stream.addEventListener('orders', event => {
+        try {
+          const payload = JSON.parse(event.data);
+          if (!payload || typeof payload.rowsHtml !== 'string') {
+            return;
+          }
+          if (typeof payload.rowsSignature === 'string' && payload.rowsSignature !== previousSignature) {
+            bodyEl.innerHTML = payload.rowsHtml;
+            previousSignature = payload.rowsSignature;
+            if (firstSyncDone) {
+              showLiveMessage('New/updated order received');
+            }
+          }
+          firstSyncDone = true;
+        } catch (error) {
+          // Ignore malformed events and wait for the next one.
+        }
+      });
+
+      stream.onerror = () => {
+        stream.close();
+        if (reconnectTimer) {
+          clearTimeout(reconnectTimer);
+        }
+        reconnectTimer = setTimeout(connectStream, 1500);
+      };
+    }
+
+    if (window.EventSource) {
+      connectStream();
+    }
 
     if (window.DataTable) {
       new DataTable('#ordersIndexTable', {

@@ -12,6 +12,7 @@ use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Core\Exception\AccessDeniedException;
 
@@ -50,21 +51,53 @@ final class OrderController extends AbstractController
         $sort = (string) $request->query->get('sort', 'date');
         $dir = strtolower((string) $request->query->get('dir', 'desc')) === 'asc' ? 'ASC' : 'DESC';
         $orders = $this->findFilteredOrders($orderRepository, $search, $statusFilter, $sort, $dir);
+        $payload = $this->buildRowsPayload($orders);
 
-        $rowsSignature = implode('|', array_map(
-            static fn (Order $o): string => sprintf(
-                '%d:%s:%0.2f',
-                (int) $o->getId(),
-                strtolower((string) $o->getStatus()),
-                (float) $o->getTotal()
-            ),
-            $orders
-        ));
+        return $this->json($payload);
+    }
 
-        return $this->json([
-            'rowsHtml' => $this->renderView('order/_rows.html.twig', ['orders' => $orders]),
-            'rowsSignature' => $rowsSignature,
-        ]);
+    #[Route('/stream', name: 'app_order_stream', methods: ['GET'])]
+    public function stream(Request $request, OrderRepository $orderRepository): StreamedResponse
+    {
+        $search = trim((string) $request->query->get('search', ''));
+        $statusFilter = $request->query->get('status');
+        $sort = (string) $request->query->get('sort', 'date');
+        $dir = strtolower((string) $request->query->get('dir', 'desc')) === 'asc' ? 'ASC' : 'DESC';
+
+        $response = new StreamedResponse(function () use ($orderRepository, $search, $statusFilter, $sort, $dir): void {
+            @set_time_limit(0);
+            @ini_set('output_buffering', 'off');
+            @ini_set('zlib.output_compression', '0');
+
+            $lastSignature = '';
+            $maxSeconds = 25;
+            $start = time();
+
+            while ((time() - $start) < $maxSeconds) {
+                $orders = $this->findFilteredOrders($orderRepository, $search, $statusFilter, $sort, $dir);
+                $payload = $this->buildRowsPayload($orders);
+
+                if ($payload['rowsSignature'] !== $lastSignature) {
+                    $lastSignature = $payload['rowsSignature'];
+                    echo "event: orders\n";
+                    echo 'data: '.json_encode($payload, JSON_UNESCAPED_UNICODE)."\n\n";
+                } else {
+                    echo "event: ping\n";
+                    echo "data: {}\n\n";
+                }
+
+                @ob_flush();
+                @flush();
+                sleep(2);
+            }
+        });
+
+        $response->headers->set('Content-Type', 'text/event-stream');
+        $response->headers->set('Cache-Control', 'no-cache, no-store, must-revalidate');
+        $response->headers->set('Connection', 'keep-alive');
+        $response->headers->set('X-Accel-Buffering', 'no');
+
+        return $response;
     }
 
     #[Route('/new', name: 'app_order_new', methods: ['GET', 'POST'])]
@@ -337,5 +370,28 @@ final class OrderController extends AbstractController
         $orders = $qb->getQuery()->getResult();
 
         return $orders;
+    }
+
+    /**
+     * @param list<Order> $orders
+     *
+     * @return array{rowsHtml: string, rowsSignature: string}
+     */
+    private function buildRowsPayload(array $orders): array
+    {
+        $rowsSignature = implode('|', array_map(
+            static fn (Order $o): string => sprintf(
+                '%d:%s:%0.2f',
+                (int) $o->getId(),
+                strtolower((string) $o->getStatus()),
+                (float) $o->getTotal()
+            ),
+            $orders
+        ));
+
+        return [
+            'rowsHtml' => $this->renderView('order/_rows.html.twig', ['orders' => $orders]),
+            'rowsSignature' => $rowsSignature,
+        ];
     }
 }
