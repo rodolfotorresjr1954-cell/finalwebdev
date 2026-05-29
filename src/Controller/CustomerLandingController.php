@@ -11,6 +11,8 @@ use App\Repository\OrderRepository;
 use App\Repository\ProductRepository;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use App\Entity\User;
+use App\Service\ActivityLogService;
 use App\Service\BrevoContactService;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
@@ -26,6 +28,7 @@ final class CustomerLandingController extends AbstractController
         private CategoryRepository $categoryRepository,
         private CustomerRepository $customerRepository,
         private OrderRepository $orderRepository,
+        private ActivityLogService $activityLogService,
     ) {
     }
 
@@ -320,6 +323,10 @@ final class CustomerLandingController extends AbstractController
         $entityManager->persist($customer);
         $entityManager->persist($order);
         $entityManager->flush();
+
+        if ($user instanceof User) {
+            $this->activityLogService->logOrderPlaced($user, $order, 'web');
+        }
 
         // Clear cart
         $request->getSession()->remove(self::CART_SESSION_KEY);

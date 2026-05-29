@@ -3,6 +3,7 @@
 namespace App\Security;
 
 use App\Entity\User;
+use App\Service\ActivityLogService;
 use Lexik\Bundle\JWTAuthenticationBundle\Response\JWTAuthenticationSuccessResponse;
 use Lexik\Bundle\JWTAuthenticationBundle\Services\JWTTokenManagerInterface;
 use Symfony\Component\HttpFoundation\Request;
@@ -14,6 +15,7 @@ class JWTAuthenticationSuccessHandler implements AuthenticationSuccessHandlerInt
 {
     public function __construct(
         private readonly JWTTokenManagerInterface $jwtManager,
+        private readonly ActivityLogService $activityLogService,
     ) {
     }
 
@@ -25,6 +27,8 @@ class JWTAuthenticationSuccessHandler implements AuthenticationSuccessHandlerInt
 
             return new JWTAuthenticationSuccessResponse($jwt);
         }
+
+        $this->activityLogService->logLogin($user, 'mobile');
 
         $jwt = $this->jwtManager->create($user);
 

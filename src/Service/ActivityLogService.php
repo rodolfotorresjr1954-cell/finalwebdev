@@ -3,6 +3,7 @@
 namespace App\Service;
 
 use App\Entity\ActivityLog;
+use App\Entity\Order;
 use App\Entity\User;
 use Doctrine\ORM\EntityManagerInterface;
 
@@ -53,9 +54,40 @@ class ActivityLogService
         $this->log($user, 'DELETE', $entityType, $entityId, $data, $description);
     }
 
-    public function logLogin(User $user): void
+    public function logLogin(User $user, string $source = 'web'): void
     {
-        $this->log($user, 'LOGIN', null, null, null, 'User logged in');
+        $sourceLabel = match ($source) {
+            'mobile', 'app' => 'mobile app',
+            'web' => 'website',
+            default => $source,
+        };
+
+        $this->log($user, 'LOGIN', null, null, null, sprintf('Logged in via %s', $sourceLabel));
+    }
+
+    public function logOrderPlaced(User $user, Order $order, string $source = 'mobile'): void
+    {
+        $orderId = $order->getId();
+        if (null === $orderId) {
+            return;
+        }
+
+        $sourceLabel = match ($source) {
+            'mobile', 'app' => 'mobile app',
+            'web' => 'website',
+            default => $source,
+        };
+
+        $label = $order->getName() ?? 'Order';
+        $total = (float) $order->getTotal();
+
+        $this->logCreate(
+            $user,
+            'Order',
+            $orderId,
+            ['name' => $label, 'total' => $total, 'status' => $order->getStatus()],
+            sprintf('Placed order via %s: %s (₱%s)', $sourceLabel, $label, number_format($total, 2, '.', ','))
+        );
     }
 
     public function logLogout(User $user): void

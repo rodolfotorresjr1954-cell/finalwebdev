@@ -21,6 +21,7 @@ final class MobileCheckoutService
         private readonly CustomerRepository $customerRepository,
         private readonly PaymentGatewayService $paymentGateway,
         private readonly EntityManagerInterface $entityManager,
+        private readonly ActivityLogService $activityLogService,
     ) {
     }
 
@@ -132,6 +133,8 @@ final class MobileCheckoutService
         $this->entityManager->persist($customer);
         $this->entityManager->persist($order);
         $this->entityManager->flush();
+
+        $this->activityLogService->logOrderPlaced($user, $order, 'mobile');
 
         $this->cartItemRepository->clearForUser($user);
 
