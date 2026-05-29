@@ -1,0 +1,53 @@
+{% for log in logs %}
+    {% set roleVal = log.role %}
+    {% if not roleVal and log.user %}
+        {% set roleVal = log.user.roles|first %}
+    {% endif %}
+    <tr>
+        <td class="al-ts">{{ log.createdAt ? log.createdAt|date('Y-m-d H:i:s') : '—' }}</td>
+        <td><span class="al-user">{{ log.username ?? (log.user ? log.user.username : '—') }}</span></td>
+        <td>
+            {% if roleVal == 'ROLE_ADMIN' %}
+                <span class="um-badge um-badge--admin">Admin</span>
+            {% elseif roleVal == 'ROLE_STAFF' %}
+                <span class="um-badge um-badge--staff">Staff</span>
+            {% else %}
+                <span class="um-badge um-badge--user">User</span>
+            {% endif %}
+        </td>
+        <td>
+            {% if log.action == 'CREATE' %}
+                <span class="al-act-badge al-act-badge--create">Create</span>
+            {% elseif log.action == 'UPDATE' %}
+                <span class="al-act-badge al-act-badge--update">Update</span>
+            {% elseif log.action == 'DELETE' %}
+                <span class="al-act-badge al-act-badge--delete">Delete</span>
+            {% elseif log.action == 'LOGIN' %}
+                <span class="al-act-badge al-act-badge--login">Login</span>
+            {% elseif log.action == 'LOGOUT' %}
+                <span class="al-act-badge al-act-badge--logout">Logout</span>
+            {% elseif log.action == 'REGISTER' %}
+                <span class="al-act-badge al-act-badge--register">Register</span>
+            {% elseif log.action in ['PASSWORD_CHANGE', 'PASSWORD_RESET'] %}
+                <span class="al-act-badge al-act-badge--password">{{ log.action|replace({'_': ' '}) }}</span>
+            {% else %}
+                <span class="al-act-badge al-act-badge--default">{{ log.action }}</span>
+            {% endif %}
+        </td>
+        <td class="al-entity">
+            {% if log.entityType %}
+                {{ log.entityType }}{% if log.entityId %} #{{ log.entityId }}{% endif %}
+            {% else %}
+                —
+            {% endif %}
+        </td>
+        <td><span class="al-desc">{{ log.description|default('—') }}</span></td>
+        <td>
+            <a href="{{ path('admin_activity_log_show', {id: log.id}) }}" class="um-act um-act--view">View</a>
+        </td>
+    </tr>
+{% else %}
+    <tr class="al-empty">
+        <td colspan="7">No activity logs match your filters.</td>
+    </tr>
+{% endfor %}

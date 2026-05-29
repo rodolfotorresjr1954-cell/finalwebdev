@@ -2567,6 +2567,12 @@ a.card-stat.card-stat--kpi .card-stat-content p {
     border-color: #e2e8f0;
 }
 
+.al-act-badge--register {
+    background: rgba(34, 197, 94, 0.14);
+    color: #15803d;
+    border-color: rgba(34, 197, 94, 0.28);
+}
+
 .al-act-badge--password {
     background: rgba(245, 158, 11, 0.14);
     color: #b45309;

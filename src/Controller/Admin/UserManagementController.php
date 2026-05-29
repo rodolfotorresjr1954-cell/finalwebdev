@@ -8,8 +8,10 @@ use App\Repository\UserRepository;
 use App\Service\ActivityLogService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
+use Symfony\Component\HttpFoundation\JsonResponse;
 use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\Response;
+use Symfony\Component\HttpFoundation\StreamedResponse;
 use Symfony\Component\PasswordHasher\Hasher\UserPasswordHasherInterface;
 use Symfony\Component\Routing\Attribute\Route;
 use Symfony\Component\Security\Http\Attribute\IsGranted;
@@ -28,42 +30,56 @@ class UserManagementController extends AbstractController
     #[Route('', name: 'admin_user_index', methods: ['GET'])]
     public function index(UserRepository $userRepository, Request $request): Response
     {
-        $search = trim((string) $request->query->get('search', ''));
-        $roleFilter = $request->query->get('role');
-        $statusFilter = $request->query->get('status');
+        $context = $this->buildContext($userRepository, $request);
 
-        $qb = $userRepository->createQueryBuilder('u');
+        return $this->render('admin/users/index.html.twig', $context);
+    }
 
-        if ($search !== '') {
-            $qb->andWhere('u.username LIKE :search OR u.email LIKE :search')
-               ->setParameter('search', '%' . $search . '%');
-        }
+    #[Route('/rows', name: 'admin_user_rows', methods: ['GET'])]
+    public function rows(UserRepository $userRepository, Request $request): JsonResponse
+    {
+        $context = $this->buildContext($userRepository, $request);
 
-        if ($roleFilter === 'ROLE_USER') {
-            // "User" = no Admin/Staff in stored roles (matches directory badge, includes [] or ROLE_USER-only)
-            $qb->andWhere('u.roles NOT LIKE :rAdmin AND u.roles NOT LIKE :rStaff')
-                ->setParameter('rAdmin', '%ROLE_ADMIN%')
-                ->setParameter('rStaff', '%ROLE_STAFF%');
-        } elseif ($roleFilter) {
-            $qb->andWhere('u.roles LIKE :role')
-                ->setParameter('role', '%' . $roleFilter . '%');
-        }
+        return $this->json($this->buildRowsPayload($context));
+    }
 
-        if ($statusFilter !== null && $statusFilter !== '') {
-            $qb->andWhere('u.isActive = :status')
-               ->setParameter('status', $statusFilter === 'active');
-        }
+    #[Route('/stream', name: 'admin_user_stream', methods: ['GET'])]
+    public function liveStream(UserRepository $userRepository, Request $request): StreamedResponse
+    {
+        $response = new StreamedResponse(function () use ($userRepository, $request): void {
+            @set_time_limit(0);
+            @ini_set('output_buffering', 'off');
+            @ini_set('zlib.output_compression', '0');
 
-        $users = $qb->orderBy('u.createdAt', 'DESC')
-                    ->getQuery()
-                    ->getResult();
+            $lastSignature = '';
+            $maxSeconds = 25;
+            $start = time();
 
-        return $this->render('admin/users/index.html.twig', [
-            'users' => $users,
-            'search' => $search,
-            'roleFilter' => $roleFilter,
-            'statusFilter' => $statusFilter,
-        ]);
+            while ((time() - $start) < $maxSeconds) {
+                $context = $this->buildContext($userRepository, $request);
+                $payload = $this->buildRowsPayload($context);
+
+                if ($payload['rowsSignature'] !== $lastSignature) {
+                    $lastSignature = $payload['rowsSignature'];
+                    echo "event: users\n";
+                    echo 'data: '.json_encode($payload, JSON_UNESCAPED_UNICODE)."\n\n";
+                } else {
+                    echo "event: ping\n";
+                    echo "data: {}\n\n";
+                }
+
+                @ob_flush();
+                @flush();
+                sleep(2);
+            }
+        });
+
+        $response->headers->set('Content-Type', 'text/event-stream');
+        $response->headers->set('Cache-Control', 'no-cache, no-store, must-revalidate');
+        $response->headers->set('Connection', 'keep-alive');
+        $response->headers->set('X-Accel-Buffering', 'no');
+
+        return $response;
     }
 
     #[Route('/new', name: 'admin_user_new', methods: ['GET', 'POST'])]
@@ -257,6 +273,90 @@ class UserManagementController extends AbstractController
         }
 
         return $this->redirectToRoute('admin_user_index');
+    }
+
+    /**
+     * @return array{users: list<User>, search: string, roleFilter: mixed, statusFilter: mixed}
+     */
+    private function buildContext(UserRepository $userRepository, Request $request): array
+    {
+        $search = trim((string) $request->query->get('search', ''));
+        $roleFilter = $request->query->get('role');
+        $statusFilter = $request->query->get('status');
+
+        return [
+            'users' => $this->findFilteredUsers($userRepository, $search, $roleFilter, $statusFilter),
+            'search' => $search,
+            'roleFilter' => $roleFilter,
+            'statusFilter' => $statusFilter,
+        ];
+    }
+
+    /**
+     * @return list<User>
+     */
+    private function findFilteredUsers(
+        UserRepository $userRepository,
+        string $search,
+        mixed $roleFilter,
+        mixed $statusFilter,
+    ): array {
+        $qb = $userRepository->createQueryBuilder('u');
+
+        if ($search !== '') {
+            $qb->andWhere('u.username LIKE :search OR u.email LIKE :search')
+                ->setParameter('search', '%'.$search.'%');
+        }
+
+        if ($roleFilter === 'ROLE_USER') {
+            $qb->andWhere('u.roles NOT LIKE :rAdmin AND u.roles NOT LIKE :rStaff')
+                ->setParameter('rAdmin', '%ROLE_ADMIN%')
+                ->setParameter('rStaff', '%ROLE_STAFF%');
+        } elseif ($roleFilter) {
+            $qb->andWhere('u.roles LIKE :role')
+                ->setParameter('role', '%'.$roleFilter.'%');
+        }
+
+        if ($statusFilter !== null && $statusFilter !== '') {
+            $qb->andWhere('u.isActive = :status')
+                ->setParameter('status', $statusFilter === 'active');
+        }
+
+        /** @var list<User> $users */
+        $users = $qb->orderBy('u.createdAt', 'DESC')
+            ->getQuery()
+            ->getResult();
+
+        return $users;
+    }
+
+    /**
+     * @param array{users: list<User>, search: string, roleFilter: mixed, statusFilter: mixed} $context
+     *
+     * @return array{rowsHtml: string, rowsSignature: string, userCount: int}
+     */
+    private function buildRowsPayload(array $context): array
+    {
+        /** @var list<User> $users */
+        $users = $context['users'];
+
+        $rowsSignature = implode('|', array_map(
+            static fn (User $user): string => sprintf(
+                '%d:%s:%d',
+                (int) $user->getId(),
+                $user->isActive() ? '1' : '0',
+                $user->getCreatedAt()?->getTimestamp() ?? 0
+            ),
+            $users
+        ));
+
+        return [
+            'rowsHtml' => $this->renderView('admin/users/_rows.html.twig', [
+                'users' => $users,
+            ]),
+            'rowsSignature' => $rowsSignature,
+            'userCount' => \count($users),
+        ];
     }
 }
 

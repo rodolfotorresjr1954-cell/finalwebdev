@@ -1,0 +1,42 @@
+{% for user in users %}
+  <tr>
+    <td class="um-user-cell">
+      <strong>{{ user.username }}</strong>
+    </td>
+    <td class="um-email" title="{{ user.email|e('html_attr') }}">{{ user.email }}</td>
+    <td>
+      {% if 'ROLE_ADMIN' in user.roles %}
+        <span class="um-badge um-badge--admin">Admin</span>
+      {% elseif 'ROLE_STAFF' in user.roles %}
+        <span class="um-badge um-badge--staff">Staff</span>
+      {% else %}
+        <span class="um-badge um-badge--user">User</span>
+      {% endif %}
+    </td>
+    <td>
+      {% if user.isActive %}
+        <span class="um-badge um-badge--active">Active</span>
+      {% else %}
+        <span class="um-badge um-badge--inactive">Inactive</span>
+      {% endif %}
+    </td>
+    <td class="um-date">{{ user.createdAt ? user.createdAt|date('M j, Y g:i A') : '—' }}</td>
+    <td>
+      <div class="um-actions">
+        <a href="{{ path('admin_user_show', {id: user.id}) }}" class="um-act um-act--view">View</a>
+        <form method="post" action="{{ path('admin_user_toggle_status', {id: user.id}) }}" class="um-act-form">
+          <input type="hidden" name="_token" value="{{ csrf_token('toggle_status' ~ user.id) }}">
+          <button type="submit" class="um-act um-act--warn">{{ user.isActive ? 'Deactivate' : 'Activate' }}</button>
+        </form>
+        <form method="post" action="{{ path('admin_user_delete', {id: user.id}) }}" class="um-act-form" onsubmit="return confirm('Delete this user permanently?');">
+          <input type="hidden" name="_token" value="{{ csrf_token('delete' ~ user.id) }}">
+          <button type="submit" class="um-act um-act--danger">Delete</button>
+        </form>
+      </div>
+    </td>
+  </tr>
+{% else %}
+  <tr class="um-empty">
+    <td colspan="6">No users match your filters.</td>
+  </tr>
+{% endfor %}

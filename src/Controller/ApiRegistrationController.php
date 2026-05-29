@@ -3,6 +3,7 @@
 namespace App\Controller;
 
 use App\Entity\User;
+use App\Service\ActivityLogService;
 use Doctrine\ORM\EntityManagerInterface;
 use Symfony\Bundle\FrameworkBundle\Controller\AbstractController;
 use Symfony\Component\HttpFoundation\JsonResponse;
@@ -20,6 +21,7 @@ class ApiRegistrationController extends AbstractController
         private readonly UserPasswordHasherInterface $userPasswordHasher,
         private readonly ValidatorInterface $validator,
         private readonly JWTTokenManagerInterface $jwtManager,
+        private readonly ActivityLogService $activityLogService,
     ) {
     }
 
@@ -96,6 +98,8 @@ class ApiRegistrationController extends AbstractController
 
         $this->entityManager->persist($user);
         $this->entityManager->flush();
+
+        $this->activityLogService->logRegister($user, 'mobile');
 
         $token = $this->jwtManager->create($user);
 

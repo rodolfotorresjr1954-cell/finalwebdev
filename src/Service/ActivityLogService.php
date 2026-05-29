@@ -68,6 +68,24 @@ class ActivityLogService
         $this->log($user, 'PASSWORD_CHANGE', 'User', $user->getId(), null, 'Password changed');
     }
 
+    public function logRegister(User $user, string $source = 'mobile'): void
+    {
+        $sourceLabel = match ($source) {
+            'mobile', 'app' => 'mobile app',
+            'web' => 'website',
+            default => $source,
+        };
+
+        $this->log(
+            $user,
+            'REGISTER',
+            'User',
+            $user->getId(),
+            ['username' => $user->getUsername(), 'email' => $user->getEmail()],
+            sprintf('New user registered via %s: %s', $sourceLabel, $user->getUsername())
+        );
+    }
+
     private function extractPrimaryRole(User $user): string
     {
         $roles = $user->getRoles();

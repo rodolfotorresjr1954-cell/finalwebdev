@@ -58,6 +58,8 @@
                             <span class="al-act-badge al-act-badge--login">Login</span>
                         {% elseif log.action == 'LOGOUT' %}
                             <span class="al-act-badge al-act-badge--logout">Logout</span>
+                        {% elseif log.action == 'REGISTER' %}
+                            <span class="al-act-badge al-act-badge--register">Register</span>
                         {% elseif log.action in ['PASSWORD_CHANGE', 'PASSWORD_RESET'] %}
                             <span class="al-act-badge al-act-badge--password">{{ log.action|replace({'_': ' '}) }}</span>
                         {% else %}
