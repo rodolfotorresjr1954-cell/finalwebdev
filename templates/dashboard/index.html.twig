@@ -40,7 +40,7 @@
                 </div>
                 <div class="card-stat-content">
                   <h3>Total records</h3>
-                  <p>{{ totalRecords }}</p>
+                  <p data-dash-stat="total-records">{{ totalRecords }}</p>
                 </div>
               </div>
               <a href="{{ path('admin_activity_log_index') }}" class="card-stat">
@@ -80,7 +80,7 @@
                 </div>
                 <div class="card-stat-content">
                   <h3>Total sales</h3>
-                  <p>₱{{ totalSales|number_format(2, '.', ',') }}</p>
+                  <p data-dash-stat="total-sales">₱{{ totalSales|number_format(2, '.', ',') }}</p>
                 </div>
               </a>
               <a href="{{ path('app_order_index') }}" class="card-stat">
@@ -91,7 +91,7 @@
                 </div>
                 <div class="card-stat-content">
                   <h3>Orders</h3>
-                  <p>{{ orderCount }}</p>
+                  <p data-dash-stat="order-count">{{ orderCount }}</p>
                 </div>
               </a>
               <a href="{{ path('app_product_index') }}" class="card-stat">
@@ -168,54 +168,15 @@
                       </th>
                     </tr>
                   </thead>
-                  <tbody>
-                    {% for order in recentOrders %}
-                    <tr>
-                      <td>
-                        <div>
-                          <a href="{{ path('app_order_show', {id: order.id}) }}" class="dash-order-link">{{ order.Name }}</a>
-                          <p class="dash-order-sub">#{{ order.id }}</p>
-                        </div>
-                      </td>
-                      <td>
-                        {{ order.Customer ? order.Customer.Name : '—' }}
-                      </td>
-                      <td>
-                        {% if order.products|length > 0 %}
-                          {% for p in order.products|slice(0, 2) %}{% if not loop.first %}, {% endif %}{{ p.Name }}{% endfor %}{% if order.products|length > 2 %}…{% endif %}
-                        {% else %}—{% endif %}
-                      </td>
-                      <td class="dash-amt">
-                        ₱{{ order.Total|number_format(2, '.', ',') }}
-                      </td>
-                      <td>
-                        {% set status = order.Status|lower %}
-                        {% if status in ['approved', 'completed', 'complete', 'paid', 'delivered'] %}
-                          <span class="order-status order-status--success">{{ order.Status }}</span>
-                        {% elseif status == 'pending' %}
-                          <span class="order-status order-status--warning">{{ order.Status }}</span>
-                        {% elseif status in ['expired', 'cancelled', 'canceled'] %}
-                          <span class="order-status order-status--muted">{{ order.Status }}</span>
-                        {% else %}
-                          <span class="order-status order-status--danger">{{ order.Status }}</span>
-                        {% endif %}
-                      </td>
-                      <td>
-                        {{ order.createAt ? order.createAt|date('M j, Y') : '—' }}
-                      </td>
-                    </tr>
-                    {% else %}
-                    <tr>
-                      <td colspan="6" style="text-align: center; padding: 2.5rem 1rem; color: #64748b;">No recent orders yet.</td>
-                    </tr>
-                    {% endfor %}
+                  <tbody id="dashboardOrdersBody">
+                    {% include 'dashboard/_recent_orders_rows.html.twig' %}
                   </tbody>
                 </table>
               </div>
               <footer class="dash-table-foot">
                 {% set start = totalOrders > 0 ? ((page - 1) * perPage + 1) : 0 %}
                 {% set end = (page * perPage) > totalOrders ? totalOrders : (page * perPage) %}
-                <span>Showing {{ start }}–{{ end }} of {{ totalOrders }}</span>
+                <span id="dashboardOrdersFooter">Showing {{ start }}–{{ end }} of {{ totalOrders }}</span>
                 <nav aria-label="Orders pagination">
                   <ul class="dash-page-nav">
                     <li>
@@ -254,4 +215,154 @@
               </footer>
             </section>
           </div>
+
+<script>
+  document.addEventListener('DOMContentLoaded', function () {
+    const bodyEl = document.getElementById('dashboardOrdersBody');
+    const footerEl = document.getElementById('dashboardOrdersFooter');
+    const totalRecordsEl = document.querySelector('[data-dash-stat="total-records"]');
+    const totalSalesEl = document.querySelector('[data-dash-stat="total-sales"]');
+    const orderCountEl = document.querySelector('[data-dash-stat="order-count"]');
+    const query = window.location.search || '';
+    const statsUrl = "{{ path('app_dashboard_stats') }}" + query;
+    const rowsUrl = "{{ path('app_dashboard_rows') }}" + query;
+    const streamUrl = "{{ path('app_dashboard_stream') }}" + query;
+
+    let previousStatsSignature = '';
+    let previousRowsSignature = '';
+    let firstSyncDone = false;
+    let stream = null;
+    let reconnectTimer = null;
+    let pollBusy = false;
+
+    function showLiveMessage(message) {
+      let toast = document.getElementById('dash-live-toast');
+      if (!toast) {
+        toast = document.createElement('div');
+        toast.id = 'dash-live-toast';
+        toast.style.position = 'fixed';
+        toast.style.right = '16px';
+        toast.style.bottom = '16px';
+        toast.style.padding = '10px 14px';
+        toast.style.borderRadius = '8px';
+        toast.style.background = '#1f2937';
+        toast.style.color = '#f9fafb';
+        toast.style.fontSize = '13px';
+        toast.style.zIndex = '9999';
+        toast.style.transition = 'opacity 0.3s ease';
+        document.body.appendChild(toast);
+      }
+      toast.textContent = message;
+      toast.style.opacity = '1';
+      setTimeout(function () {
+        toast.style.opacity = '0';
+      }, 2500);
+    }
+
+    function applyStats(stats) {
+      if (!stats || typeof stats.statsSignature !== 'string') {
+        return false;
+      }
+      if (stats.statsSignature === previousStatsSignature) {
+        return false;
+      }
+      previousStatsSignature = stats.statsSignature;
+
+      if (orderCountEl && typeof stats.orderCount === 'number') {
+        orderCountEl.textContent = String(stats.orderCount);
+      }
+      if (totalSalesEl && typeof stats.totalSalesFormatted === 'string') {
+        totalSalesEl.textContent = '₱' + stats.totalSalesFormatted;
+      }
+      if (totalRecordsEl && typeof stats.totalRecords === 'number') {
+        totalRecordsEl.textContent = String(stats.totalRecords);
+      }
+
+      return true;
+    }
+
+    function applyRows(rows) {
+      if (!rows || typeof rows.rowsSignature !== 'string') {
+        return false;
+      }
+      if (rows.rowsSignature === previousRowsSignature) {
+        return false;
+      }
+      previousRowsSignature = rows.rowsSignature;
+
+      if (bodyEl && typeof rows.rowsHtml === 'string') {
+        bodyEl.innerHTML = rows.rowsHtml;
+      }
+      if (footerEl && typeof rows.footerText === 'string') {
+        footerEl.textContent = rows.footerText;
+      }
+
+      return true;
+    }
+
+    function applyPayload(payload) {
+      const statsChanged = applyStats(payload && payload.stats);
+      const rowsChanged = applyRows(payload && payload.rows);
+      if (firstSyncDone && (statsChanged || rowsChanged)) {
+        showLiveMessage('Dashboard updated — new order received');
+      }
+      firstSyncDone = true;
+    }
+
+    async function refreshSilently() {
+      if (pollBusy) {
+        return;
+      }
+      pollBusy = true;
+      try {
+        const [statsResponse, rowsResponse] = await Promise.all([
+          fetch(statsUrl, { headers: { 'X-Requested-With': 'XMLHttpRequest' }, cache: 'no-store' }),
+          fetch(rowsUrl, { headers: { 'X-Requested-With': 'XMLHttpRequest' }, cache: 'no-store' }),
+        ]);
+        if (!statsResponse.ok || !rowsResponse.ok) {
+          return;
+        }
+        const stats = await statsResponse.json();
+        const rows = await rowsResponse.json();
+        applyPayload({ stats: stats, rows: rows });
+      } catch (error) {
+        // retry on next interval
+      } finally {
+        pollBusy = false;
+      }
+    }
+
+    window.setInterval(refreshSilently, 20000);
+    refreshSilently();
+
+    function connectStream() {
+      if (!window.EventSource) {
+        return;
+      }
+      if (stream) {
+        stream.close();
+      }
+      stream = new EventSource(streamUrl);
+
+      stream.addEventListener('dashboard', function (event) {
+        try {
+          const payload = JSON.parse(event.data);
+          applyPayload(payload);
+        } catch (error) {
+          // wait for next event
+        }
+      });
+
+      stream.onerror = function () {
+        stream.close();
+        if (reconnectTimer) {
+          clearTimeout(reconnectTimer);
+        }
+        reconnectTimer = setTimeout(connectStream, 1500);
+      };
+    }
+
+    connectStream();
+  });
+</script>
 {% endblock %}

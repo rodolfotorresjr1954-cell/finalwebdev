@@ -1,0 +1,40 @@
+{% for order in recentOrders %}
+<tr>
+  <td>
+    <div>
+      <a href="{{ path('app_order_show', {id: order.id}) }}" class="dash-order-link">{{ order.Name }}</a>
+      <p class="dash-order-sub">#{{ order.id }}</p>
+    </div>
+  </td>
+  <td>
+    {{ order.Customer ? order.Customer.Name : '—' }}
+  </td>
+  <td>
+    {% if order.products|length > 0 %}
+      {% for p in order.products|slice(0, 2) %}{% if not loop.first %}, {% endif %}{{ p.Name }}{% endfor %}{% if order.products|length > 2 %}…{% endif %}
+    {% else %}—{% endif %}
+  </td>
+  <td class="dash-amt">
+    ₱{{ order.Total|number_format(2, '.', ',') }}
+  </td>
+  <td>
+    {% set status = order.Status|lower %}
+    {% if status in ['approved', 'completed', 'complete', 'paid', 'delivered'] %}
+      <span class="order-status order-status--success">{{ order.Status }}</span>
+    {% elseif status == 'pending' %}
+      <span class="order-status order-status--warning">{{ order.Status }}</span>
+    {% elseif status in ['expired', 'cancelled', 'canceled'] %}
+      <span class="order-status order-status--muted">{{ order.Status }}</span>
+    {% else %}
+      <span class="order-status order-status--danger">{{ order.Status }}</span>
+    {% endif %}
+  </td>
+  <td>
+    {{ order.createAt ? order.createAt|date('M j, Y') : '—' }}
+  </td>
+</tr>
+{% else %}
+<tr>
+  <td colspan="6" style="text-align: center; padding: 2.5rem 1rem; color: #64748b;">No recent orders yet.</td>
+</tr>
+{% endfor %}
