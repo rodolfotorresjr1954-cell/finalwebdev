@@ -50,6 +50,8 @@ security:
     # Easy way to control access for large sections of your site
     # Note: Only the *first* access control that matches will be used
     access_control:
+        # Health check — must be publicly accessible for Docker/Railway probes
+        - { path: ^/health$, roles: PUBLIC_ACCESS }
         # Admin-only routes
         - { path: ^/admin, roles: ["ROLE_ADMIN"] }
         - { path: ^/dashboard, roles: ["ROLE_STAFF", "ROLE_ADMIN"] }

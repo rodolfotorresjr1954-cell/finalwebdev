@@ -17,8 +17,9 @@ MIGRATION_OUTPUT=$(php bin/console doctrine:migrations:migrate --no-interaction 
 echo "$MIGRATION_OUTPUT"
 
 echo "Starting PHP-FPM..."
-# Redirect both stdout and stderr to the container log so PHP fatal errors are visible
-php-fpm -F 2>&1 &
+# Pipe PHP-FPM's stdout and stderr directly to the container's stdout (fd 1)
+# so every fatal error, warning, and startup message appears in Railway logs.
+php-fpm -F > /proc/1/fd/1 2>&1 &
 PHP_PID=$!
 
 # When this script exits for any reason, kill PHP-FPM so the container fully stops
@@ -58,7 +59,10 @@ watchdog() {
     while true; do
         sleep 5
         if ! kill -0 "$PHP_PID" 2>/dev/null; then
-            echo "ERROR: PHP-FPM (pid $PHP_PID) is no longer running — stopping Nginx"
+            # Capture the exit code so we know whether it was a crash or clean stop
+            wait "$PHP_PID" 2>/dev/null
+            PHP_EXIT=$?
+            echo "ERROR: PHP-FPM (pid $PHP_PID) died with exit code $PHP_EXIT — stopping Nginx"
             nginx -s quit 2>/dev/null || true
             return
         fi
